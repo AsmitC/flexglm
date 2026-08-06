@@ -5,12 +5,12 @@
 \title{Control arguments for the \code{dpglm} algorithm.}
 \usage{
 dpglm.control(
-  burnin = 100,
-  thin = 10,
-  save = 1000,
+  burnin = 100L,
+  thin = 10L,
+  save = 1000L,
   mb = NULL,
   Sb = NULL,
-  M = 50,
+  M = 50L,
   alpha = 1,
   delta = 2,
   c0 = NULL,
@@ -18,6 +18,9 @@ dpglm.control(
   mu0 = NULL,
   spt = NULL,
   eps = 1e-06,
+  n_grid = 1501L,
+  r_grid = 1501L,
+  mc_size = 5000L,
   betaStart = NULL,
   varbetaStart = NULL,
   thetaStart = NULL,
@@ -56,6 +59,12 @@ length-2 vector giving the lower and upper bounds. Defaults to \code{NULL}, in w
 case the support is inferred internally from the data as \code{c(min(y)-eps, max(y)+eps)}.}
 
 \item{eps}{Padding used when constructing default support bounds. Defaults to 1e-6.}
+
+\item{n_grid}{Number of grid points used for the CRM jump-size grid. Defaults to 1501.}
+
+\item{r_grid}{Number of grid points used for the CRM response-support grid. Defaults to 1501.}
+
+\item{mc_size}{Number of Monte Carlo samples used to approximate \code{N(v)}}
 
 \item{betaStart}{Initial value for \code{beta}. Defaults to NULL.}
 

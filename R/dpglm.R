@@ -22,7 +22,7 @@
 #' @return List of class "dpglm" containing information including
 #' posterior samples, Metropolis-Hastings acceptance rates, and model specification.
 #' See details for more information.
-#' 
+#'
 #' @details
 #' The "dpglm" class is a list of the following items.
 #' \itemize{
@@ -67,7 +67,7 @@
 #'   )
 #'  )
 #' }
-#' 
+#'
 #' @export
 dpglm <- function(formula, data = NULL, link = NULL,
                   dpglmControl = dpglm.control(), thetaControl = theta.control()) {
@@ -217,7 +217,9 @@ dpglm <- function(formula, data = NULL, link = NULL,
     thin             = dpglmControl$thin,
     save             = dpglmControl$save,
     beta_acceptance  = fit$beta_acceptance,
-    crm_acceptance   = fit$crm_acceptance
+    crm_acceptance   = fit$crm_acceptance,
+    timing           = fit$timing,
+    crm_inputs       = fit$crm_inputs
   )
 
   class(out) <- "dpglm"

@@ -11,7 +11,9 @@ Imports:
     gldrm,
     mvtnorm,
     extraDistr,
-    Matrix
+    Matrix,
+    Rcpp,
+    RcppParallel
 Suggests: 
     dplyr,
     knitr,
@@ -24,3 +26,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Language: en-US
+LinkingTo: 
+    Rcpp,
+    RcppParallel
+SystemRequirements: GNU make

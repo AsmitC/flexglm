@@ -19,6 +19,9 @@
 #' length-2 vector giving the lower and upper bounds. Defaults to \code{NULL}, in which
 #' case the support is inferred internally from the data as \code{c(min(y)-eps, max(y)+eps)}.
 #' @param eps Padding used when constructing default support bounds. Defaults to 1e-6.
+#' @param n_grid Number of grid points used for the CRM jump-size grid. Defaults to 1501.
+#' @param r_grid Number of grid points used for the CRM response-support grid. Defaults to 1501.
+#' @param mc_size Number of Monte Carlo samples used to approximate \code{N(v)}
 #' @param betaStart Initial value for \code{beta}. Defaults to NULL.
 #' @param varbetaStart Initial value for the proposal covariance of \code{beta}. Defaults to NULL.
 #' @param thetaStart Initial value for \code{theta}. Defaults to NULL.
@@ -46,10 +49,11 @@
 #' }
 #'
 #' @export
-dpglm.control <- function(burnin = 100, thin = 10, save = 1000,
+dpglm.control <- function(burnin = 100L, thin = 10L, save = 1000L,
                           mb = NULL, Sb = NULL,
-                          M = 50, alpha = 1, delta = 2, c0 = NULL,
+                          M = 50L, alpha = 1, delta = 2, c0 = NULL,
                           gamma = 1, mu0 = NULL, spt = NULL, eps = 1e-6,
+                          n_grid = 1501L, r_grid = 1501L, mc_size = 1000L,
                           betaStart = NULL, varbetaStart = NULL,
                           thetaStart = NULL, crmStart = NULL,
                           seed = NULL, robust=TRUE)
@@ -63,6 +67,36 @@ dpglm.control <- function(burnin = 100, thin = 10, save = 1000,
   if (save < 1 || floor(save) != save) {
     stop("Number of saved iterations must be an integer >= 1")
   }
+
+  if (!is.numeric(n_grid) ||
+      length(n_grid) != 1L ||
+      !is.finite(n_grid) ||
+      n_grid < 2 ||
+      n_grid != floor(n_grid)) {
+    stop("n_grid must be an integer >= 2.")
+  }
+
+  if (!is.numeric(r_grid) ||
+      length(r_grid) != 1L ||
+      !is.finite(r_grid) ||
+      r_grid < 2 ||
+      r_grid != floor(r_grid)) {
+    stop("r_grid must be an integer >= 2.")
+  }
+
+  if (
+    !is.numeric(mc_size) ||
+    length(mc_size) != 1L ||
+    !is.finite(mc_size) ||
+    mc_size < 1 ||
+    mc_size != floor(mc_size)
+  ) {
+    stop("mc_size must be an integer >= 1.")
+  }
+
+  n_grid <- as.integer(n_grid)
+  r_grid <- as.integer(r_grid)
+  mc_size <- as.integer(mc_size)
 
   if (!is.null(spt)) {
     if (!is.numeric(spt) || length(spt) != 2) {
@@ -87,6 +121,9 @@ dpglm.control <- function(burnin = 100, thin = 10, save = 1000,
     mu0          = mu0,
     spt          = spt,
     eps          = eps,
+    n_grid       = n_grid,
+    r_grid       = r_grid,
+    mc_size      = mc_size,
     betaStart    = betaStart,
     varbetaStart = varbetaStart,
     thetaStart   = thetaStart,
@@ -129,6 +166,18 @@ dpglmFit <- function(formula, data, X, y,        # Data
                      spt, mu0, init,             # Model Specs
                      dpglmControl, thetaControl) # Controls
 {
+  timer_now <- function() proc.time()[["elapsed"]]
+
+  chunk_times <- c(
+    beta_mh = 0,
+    u_update = 0,
+    zstar_resample = 0,
+    crm_sampler = 0,
+    crm_accept = 0,
+    z_update = 0,
+    storage = 0
+  )
+
   # Extract dpglmControl parameters
   burnin       <- dpglmControl$burnin
   thin         <- dpglmControl$thin
@@ -141,7 +190,9 @@ dpglmFit <- function(formula, data, X, y,        # Data
   c0           <- dpglmControl$c0
   gamma        <- dpglmControl$gamma
   eps          <- dpglmControl$eps
-  copula       <- dpglmControl$copula
+  n_grid       <- dpglmControl$n_grid
+  r_grid       <- dpglmControl$r_grid
+  mc_size      <- dpglmControl$mc_size
   seed         <- dpglmControl$seed
   robust       <- dpglmControl$robust
 
@@ -155,8 +206,6 @@ dpglmFit <- function(formula, data, X, y,        # Data
   X    <- as.matrix(X, nrow=n)
   p    <- dim(X)[2]
   iter <- burnin + thin * save
-
-  if (is.null(copula) || !is.list(copula)) copula <- list()
 
   # Default h for the DPGLM model
   h <- h_ <- hstar <- 0
@@ -177,31 +226,38 @@ dpglmFit <- function(formula, data, X, y,        # Data
   theta_samples <- matrix(NA, nrow = save, ncol = n)
   u_samples <- z_samples <- matrix(NA, nrow = save, ncol = n)
   crm_samples   <- vector("list", save)
+  ######
+  crm_u_samples <- matrix(NA_real_, nrow = save, ncol = n)
+  crm_theta_samples <- matrix(NA_real_, nrow = save, ncol = n)
+  #####
   lnlik_samples <- numeric(save)
 
   beta <- as.numeric(init$beta)
-  #beta_samples[1, ] <- beta
-  beta_mode <- beta
-  beta_cov <- init$varbeta
+  beta_rw_cov <- as.matrix(init$varbeta)
+  if (!all(dim(beta_rw_cov) == c(p, p))) {
+    stop("The beta random-walk covariance must be a p by p matrix.")
+  }
+  beta_rw_chol <- tryCatch(
+    chol(beta_rw_cov),
+    error = function(e) {
+      stop("The beta random-walk covariance must be positive definite.")
+    }
+  )
   meanY_x <- linkinv(X %*% beta)
   z.tld <- z_tld <-  as.numeric(init$crm$z.tld)
   J.tld <- J_tld <- as.numeric(init$crm$J.tld)
-  #crm_samples[[1]] <- list(z.tld = z.tld, J.tld = J.tld)
 
   ord <- order(J_tld)[1:M]
 
   RL <- z_tld[ord]
   RJ <- J_tld[ord]
   theta <- theta_ref <- init$theta
-  #theta_samples[1, ] <- theta
   z <- z_sampler_unifK(y, c0, z.tld, J.tld, theta, min_y, max_y, eps)
-  #z_samples[1, ] <- z
 
   btheta <- b_theta(theta, z.tld, J.tld)
 
   T_vec <- exp(btheta)
   u <- rgamma(n, shape = 1, rate = T_vec)
-  #u_samples[1, ] <- u <- rgamma(n, shape = 1, rate = T_vec)
 
   resampled_z <- resample_zstar(z)
   zstar <- resampled_z$zstar
@@ -239,7 +295,6 @@ dpglmFit <- function(formula, data, X, y,        # Data
   }
 
   lnlik <- loglik(linkinv = linkinv, z = z, X = X, beta = beta, atoms = z.tld, jumps = J.tld_ll)
-  # lnlik_samples[1] <- lnlik
 
   # Beta prior
   if (is.null(mb)) {
@@ -267,69 +322,65 @@ dpglmFit <- function(formula, data, X, y,        # Data
   for(itr in seq_len(iter)){
     if (burning && itr > burnin) burning <- FALSE
 
-    # Optimization to find the mode
-    result <- tryCatch({
-      optim(par = beta, fn = logpost_beta, linkinv = linkinv, z = z, X = X,
-            atoms = z.tld, jumps  = J.tld, mu_beta = mb,
-            sigma_beta = Sb, h = h,
-            control = list(fnscale = -1), hessian = TRUE)
-    }, error = function(e) {
-      message(e)
-      return(NULL)
-    })  # If error occurs, return NULL
+    #######
+    save_now <- (itr > burnin &&(itr - burnin) %% thin == 0L)
+    if (save_now) save_index <- as.integer((itr - burnin) / thin)
+    #######
 
-    # Check if `optim()` failed
-    if (!is.null(result) && is.finite(det(result$hessian))) {
-      beta_mode_ <- result$par
 
-      # Safely compute Hessian inverse
-      beta_cov_ <- tryCatch({
-        -solve(result$hessian)
-      }, error = function(e) {
-        message(e)
-        return(NULL)
-      })  # If inversion fails, return NULL
+    # beta update ------------------------------------
+    t0 <- timer_now()
+    beta_ <- beta + drop(t(beta_rw_chol) %*% rnorm(p))
+    mean_z_ <- as.numeric(linkinv(X %*% beta_))
 
-      # Only proceed if covariance matrix is valid and positive definite
-      if (!is.null(beta_cov_)) {
-        # Check positive semi-definiteness
-        if (all(eigen(beta_cov_, symmetric = TRUE, only.values = TRUE)$values >=
-                -sqrt(.Machine$double.eps))) {
+    proposal_valid <- (
+      all(is.finite(mean_z_)) &&
+        min(mean_z_) >= min(z.tld) &&
+        max(mean_z_) <= max(z.tld)
+    )
 
-          # Force positive definiteness if needed
-          beta_cov_ <- as.matrix(Matrix::nearPD(beta_cov_)$mat)
+    if (proposal_valid) {
 
-          # Sample new beta from proposal distribution
-          beta_ <- as.numeric(rmvnorm(n = 1, mean = beta_mode_, sigma = beta_cov_))
+      cr_logpost_beta <- logpost_beta(
+        beta = beta,
+        linkinv = linkinv,
+        z = z,
+        X = X,
+        atoms = z.tld,
+        jumps = J.tld,
+        mu_beta = mb,
+        sigma_beta = Sb,
+        h = h
+      )
 
-          mean_z_ <- linkinv(X %*% beta_)
+      pr_logpost_beta <- logpost_beta(
+        beta = beta_,
+        linkinv = linkinv,
+        z = z,
+        X = X,
+        atoms = z.tld,
+        jumps = J.tld,
+        mu_beta = mb,
+        sigma_beta = Sb,
+        h = h
+      )
 
-          if (min(mean_z_) >= min(z.tld) && max(mean_z_) <= max(z.tld)) {
+      log_acc_prob <- pr_logpost_beta - cr_logpost_beta
 
-            # Compute log proposal values
-            pr_logprop_beta <- dmvnorm(x = beta_, mean = beta_mode, sigma = beta_cov, log = TRUE)
-            cr_logprop_beta <- dmvnorm(x = beta, mean = beta_mode_, sigma = beta_cov_, log = TRUE)
-            cr_logpost_beta <- logpost_beta(beta = beta, linkinv = linkinv, z = z, X = X, atoms = z.tld,
-                                            jumps  = J.tld, mu_beta = mb,
-                                            sigma_beta = Sb, h = h)
-            pr_logpost_beta <- logpost_beta(beta = beta_, linkinv = linkinv, z = z, X = X, atoms = z.tld,
-                                            jumps = J.tld, mu_beta = mb,
-                                            sigma_beta = Sb, h = h_)
+      if (
+        is.finite(log_acc_prob) &&
+        log(runif(1)) < min(0, log_acc_prob)
+      ) {
+        beta <- beta_
+        meanY_x <- mean_z <- mean_z_
 
-            # Metropolis-Hastings acceptance step
-            log_acc_prob <- pr_logpost_beta - cr_logpost_beta + cr_logprop_beta - pr_logprop_beta
-            if (log(runif(1)) < log_acc_prob) {
-              beta <- beta_
-              beta_mode <- beta_mode_
-              beta_cov <- beta_cov_
-              meanY_x <- mean_z <- mean_z_
-              if (!burning) count1 <- count1 + 1
-            }
-          } else message("min(z_) not within z.tld bounds")
-        } else message("beta covariance not positive semi-definite")
-      } else message("beta covariance is null")
-    } else message("either optim failed or det(hessian) is infinite")
-    # If `optim()` fails, keep beta as it is and continue to next step.
+        if (!burning) {
+          count1 <- count1 + 1
+        }
+      }
+    }
+
+    chunk_times["beta_mh"] <- chunk_times["beta_mh"] + timer_now() - t0
 
     # theta update ------------------------------------
     theta <- getTheta(
@@ -348,16 +399,43 @@ dpglmFit <- function(formula, data, X, y,        # Data
     }
 
     # u update ----------------------------------------
+    t0 <- timer_now()
     u <- sampler_u(u, zstar, nstar, theta, alpha, delta, min_y, max_y, eps, h)
+    chunk_times["u_update"] <- chunk_times["u_update"] + timer_now() - t0
 
     # CRM update --------------------------------------
-    crm_star <- crm_sampler(M, u, zstar, nstar, theta, alpha, min_y, max_y, eps, h)
+    t0 <- timer_now()
+    ########
+    if (save_now) {
+      crm_u_samples[save_index, ] <- u
+      crm_theta_samples[save_index, ] <- theta
+    }
+    ########
+    crm_draws <- crm_sampler(
+      M = M,
+      u = u,
+      zstar = zstar,
+      nstar = nstar,
+      theta = theta,
+      alpha = alpha,
+      min_y = min_y,
+      max_y = max_y,
+      eps = eps,
+      h = h,
+      n_draws = 2L,
+      n_grid = n_grid,
+      r_grid = r_grid,
+      mc_size = mc_size
+    )
+
+    crm_star <- crm_draws[[1]]
+    crm_2    <- crm_draws[[2]]
+
     z.tld_star <- c(crm_star$RL, crm_star$zstar)
     J.tld_star <- c(crm_star$RJ, crm_star$Jstar)
-
-    crm_2 <- crm_sampler(M, u, zstar, nstar, theta, alpha, min_y, max_y, eps, h)
     z.tld_2 <- c(crm_2$RL, crm_2$zstar)
     J.tld_2 <- c(crm_2$RJ, crm_2$Jstar)
+    chunk_times["crm_sampler"] <- chunk_times["crm_sampler"] + timer_now() - t0
 
     if(min(meanY_x) >= min(z.tld_star) && max(meanY_x) <= max(z.tld_star)){
       # MH step
@@ -376,10 +454,28 @@ dpglmFit <- function(formula, data, X, y,        # Data
         warning("Capped some values of Theta at 50. Consider increasing M.")
       }
 
-      crm_star_2 <- crm_sampler(M, u, zstar, nstar, theta_star, alpha, min_y, max_y, eps, h)
+      t0 <- timer_now()
+      crm_star_2 <- crm_sampler(
+        M = M,
+        u = u,
+        zstar = zstar,
+        nstar = nstar,
+        theta = theta_star,
+        alpha = alpha,
+        min_y = min_y,
+        max_y = max_y,
+        eps = eps,
+        h = h,
+        n_draws = 1L,
+        n_grid = n_grid,
+        r_grid = r_grid,
+        mc_size = mc_size
+      )
       z.tld_star_2 <- c(crm_star_2$RL, crm_star_2$zstar)
       J.tld_star_2 <- c(crm_star_2$RJ, crm_star_2$Jstar)
+      chunk_times["crm_sampler"] <- chunk_times["crm_sampler"] + timer_now() - t0
 
+      t0 <- timer_now()
       b_thstar_crmstar <- b_theta(theta_star, z.tld_star, J.tld_star)
       b_th_crm         <- b_theta(theta,      z.tld,      J.tld)
       b_thstar_crm     <- b_theta(theta_star, z.tld,      J.tld)
@@ -410,13 +506,18 @@ dpglmFit <- function(formula, data, X, y,        # Data
         theta <- theta_star
         if (!burning) count2 <- count2 + 1
       }
+      chunk_times["crm_accept"] <- chunk_times["crm_accept"] + timer_now() - t0
     }
 
     # z update ------------------------------------------------------------------
+    t0 <- timer_now()
     z <- z_sampler_unifK(y, c0, z.tld, J.tld, theta, min_y, max_y, eps)
+    chunk_times["z_update"] <- chunk_times["z_update"] + timer_now() - t0
 
     # zstar and nstar update ----------------------------------------------------
+    t0 <- timer_now()
     resampled_z <- resample_zstar(z)
+    chunk_times["zstar_resample"] <- chunk_times["zstar_resample"] + timer_now() - t0
     zstar <- resampled_z$zstar
     nstar <- resampled_z$nstar
 
@@ -449,6 +550,7 @@ dpglmFit <- function(formula, data, X, y,        # Data
     lnlik <- loglik(linkinv = linkinv, z = z, X = X, beta = beta, atoms = z.tld, jumps = J.tld_ll)
 
     # Storing MCMC simulations --------------------------------------------------
+    t0 <- timer_now()
     if (itr > burnin && (itr - burnin) %% thin == 0) {
       j <- (itr - burnin) / thin
 
@@ -459,20 +561,37 @@ dpglmFit <- function(formula, data, X, y,        # Data
       crm_samples[[j]] <- list(z.tld = z.tld, J.tld = J.tld)
       lnlik_samples[j] <- lnlik
     }
+    chunk_times["storage"] <- chunk_times["storage"] + timer_now() - t0
   }
 
   crm_samples <- data.frame(
   z.tld = I(lapply(crm_samples, `[[`, "z.tld")),
   J.tld = I(lapply(crm_samples, `[[`, "J.tld"))
   )
+
   samples <- list(z = z_samples, beta = beta_samples,
                   crm = crm_samples, theta = theta_samples)
 
+  #########
+  crm_inputs <- list(
+    u = crm_u_samples,
+    theta = crm_theta_samples
+  )
+  #########
+
+  timing <- data.frame(
+    chunk = names(chunk_times),
+    seconds = as.numeric(chunk_times),
+    proportion = as.numeric(chunk_times) / sum(chunk_times)
+  )
+
   list(samples         = samples,
+       crm_inputs      = crm_inputs,
        mb              = mb,
        Sb              = Sb,
        spt             = spt,
        mu0             = mu0,
        beta_acceptance = count1 / (iter - burnin),
-       crm_acceptance  = count2 / (iter - burnin))
+       crm_acceptance  = count2 / (iter - burnin),
+       timing          = timing)
 }

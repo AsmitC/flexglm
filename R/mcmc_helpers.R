@@ -606,6 +606,25 @@ sampler_u <- function(u, zstar, nstar, theta, alpha, delta, min_y, max_y, eps, h
 
   return(u)
 }
+sampler_u <- function(u, zstar, nstar, theta, alpha, delta,
+                      min_y, max_y, eps, h = 0) {
+  if (length(h) == 1L) {
+    h <- rep(h, length(u))
+  }
+
+  sampler_u_cpp(
+    u = u,
+    zstar = zstar,
+    nstar = nstar,
+    theta = theta,
+    alpha = alpha,
+    delta = delta,
+    min_y = min_y,
+    max_y = max_y,
+    eps = eps,
+    h = h
+  )
+}
 
 #' Compute b(theta) for discrete base measure
 #'
@@ -659,89 +678,37 @@ b_theta <- function(theta, spt, f0) {
 #' }
 #'
 #' @keywords internal
-crm_sampler <- function(M, u, zstar, nstar, theta, alpha,
-                        min_y, max_y, eps, h = 0) {
-  N <- 3001
-  R <- 3001
-  s <- -log(seq(exp(-eps), exp(-5e-4), length.out = N))
-
-  tht <- theta
-
-  if (length(h) == 1L) {
-    h <- rep(h, length(u))
-  }
-
-  z <- seq(min_y + eps, max_y - eps, length.out = R)
-
-  # log_terms[i, j] = log(u_i) + h_i + theta_i * z_j
-  log_terms <- sweep(tht %o% z, 1, log(u) + h, "+")
-
-  psi_z <- apply(log_terms, 2, function(log_vec) {
-    max_val <- max(log_vec)
-    exp(max_val + log(sum(exp(log_vec - max_val))))
-  })
-
-  dz <- (max_y - min_y - 2 * eps) / (R - 1)
-
-  fnS <- numeric(length(s))
-
-  for (j in seq_along(s)) {
-    log_vals <- -(1 + psi_z) * s[j] - log(s[j])
-
-    max_val <- max(log_vals)
-    log_sum_exp <- max_val + log(sum(exp(log_vals - max_val)))
-
-    log_integral <- log(dz) + log_sum_exp
-    fnS[j] <- exp(log_integral)
-  }
-
-  ds <- diff(s)
-  h_trap <- (fnS[-N] + fnS[-1]) / 2
-  Nv <- rev(cumsum(rev(ds * h_trap)))
-  Nv <- Nv * alpha
-  Nv <- c(Nv, 0)
-
-  xi <- cumsum(rexp(M, rate = 1.0))
-  RJ <- numeric(M)
-  iNv <- N - 1
-
-  for (i in seq_len(M)) {
-    while (iNv > 0 && Nv[iNv] < xi[i]) {
-      iNv <- iNv - 1
-    }
-    RJ[i] <- s[iNv + 1]
-  }
-
-  RL <- numeric(M)
-
-  for (m in seq_len(M)) {
-    xi_rl <- runif(1)
-
-    log_temp <- -(1 + psi_z) * RJ[m]
-    max_log <- max(log_temp)
-
-    p <- exp(log_temp - max_log)
-    p <- p / sum(p)
-
-    cumsum_p <- cumsum(p)
-    RL[m] <- z[min(which(cumsum_p > xi_rl))]
-  }
-
-  # Fixed-location jumps
-  log_terms <- sweep(tht %o% zstar, 1, log(u) + h, "+")
-
-  psi_star <- sapply(seq_along(zstar), function(j) {
-    max_val <- max(log_terms[, j])
-    exp(max_val + log(sum(exp(log_terms[, j] - max_val))))
-  })
-
-  Jstar <- rgamma(length(zstar), shape = nstar, rate = psi_star + 1)
-
-  list(
-    RL = RL,
-    RJ = RJ,
+crm_sampler <- function(
+    M,
+    u,
+    zstar,
+    nstar,
+    theta,
+    alpha,
+    min_y,
+    max_y,
+    eps,
+    h = 0,
+    n_draws = 1L,
+    n_grid = 1501L,
+    r_grid = 1501L,
+    mc_size = 5000L
+) {
+  crm_sampler_cpp(
+    M = M,
+    u = u,
     zstar = zstar,
-    Jstar = Jstar
+    nstar = nstar,
+    theta = theta,
+    alpha = alpha,
+    min_y = min_y,
+    max_y = max_y,
+    eps = eps,
+    h = h,
+    n_draws = n_draws,
+    n_grid = n_grid,
+    r_grid = r_grid,
+    mc_size = mc_size
   )
 }
 

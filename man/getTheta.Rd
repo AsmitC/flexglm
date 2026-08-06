@@ -9,8 +9,8 @@ getTheta(
   spt,
   f0,
   mu,
-  sampprobs,
-  ySptIndex,
+  sampprobs = NULL,
+  ySptIndex = NULL,
   thetaStart = NULL,
   thetaControl = theta.control()
 )

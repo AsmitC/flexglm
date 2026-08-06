@@ -458,11 +458,25 @@ cdpglmFit <- function(formula, data, X, y, group_index,
     u <- sampler_u(u, zstar, nstar, theta, alpha, delta, min_y, max_y, eps, h)
 
     # CRM update
-    crm_star <- crm_sampler(M, u, zstar, nstar, theta, alpha, min_y, max_y, eps, h)
+    crm_draws <- crm_sampler(
+      M = M,
+      u = u,
+      zstar = zstar,
+      nstar = nstar,
+      theta = theta,
+      alpha = alpha,
+      min_y = min_y,
+      max_y = max_y,
+      eps = eps,
+      h = h,
+      n_draws = 2
+    )
+
+    crm_star <- crm_draws[[1]]
+    crm_2    <- crm_draws[[2]]
+
     z.tld_star <- c(crm_star$RL, crm_star$zstar)
     J.tld_star <- c(crm_star$RJ, crm_star$Jstar)
-
-    crm_2 <- crm_sampler(M, u, zstar, nstar, theta, alpha, min_y, max_y, eps, h)
     z.tld_2 <- c(crm_2$RL, crm_2$zstar)
     J.tld_2 <- c(crm_2$RJ, crm_2$Jstar)
 

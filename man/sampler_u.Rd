@@ -4,7 +4,7 @@
 \alias{sampler_u}
 \title{Update u}
 \usage{
-sampler_u(u, zstar, nstar, theta, alpha, delta, min_y, max_y, eps, h)
+sampler_u(u, zstar, nstar, theta, alpha, delta, min_y, max_y, eps, h = 0)
 }
 \arguments{
 \item{u}{Numeric vector of current auxiliary variables.}

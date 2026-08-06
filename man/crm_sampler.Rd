@@ -4,7 +4,22 @@
 \alias{crm_sampler}
 \title{Sample a CRM Proposal}
 \usage{
-crm_sampler(M, u, zstar, nstar, theta, alpha, min_y, max_y, eps, h = 0)
+crm_sampler(
+  M,
+  u,
+  zstar,
+  nstar,
+  theta,
+  alpha,
+  min_y,
+  max_y,
+  eps,
+  h = 0,
+  n_draws = 1L,
+  n_grid = 1501L,
+  r_grid = 1501L,
+  mc_size = 5000L
+)
 }
 \arguments{
 \item{M}{Integer. Number of random CRM atoms to generate.}
