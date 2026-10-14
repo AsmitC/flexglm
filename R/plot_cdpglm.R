@@ -3,22 +3,23 @@
 #' @param object A fitted \code{cdpglm} object.
 #' @param what Specifies which posterior to plot. One of \code{"beta"},
 #' \code{"crm"}, or \code{"rho"}. Defaults to \code{"beta"}.
-#' @param pars Specifies the names or integer indices of
-#' the \code{beta} coefficients to plot. See details for more information.
-#' @param top_k The number of \code{beta} coefficients to plot if \code{pars}
-#' is \code{NULL} and the number of coefficients is large. Defaults to 6.
+#' @param pars Specifies the names or integer indices of the \code{beta}
+#' coefficients to plot. See details for more information.
+#' @param top_k The number of \code{beta} coefficients to plot if \code{pars} is
+#' \code{NULL} and the number of coefficients is large. Defaults to 6.
 #' @param order Specifies the sorting mechanism for \code{beta} coefficients.
 #' One of \code{"magnitude"}, \code{"variance"}, or \code{"none"}.
 #' @param robust Logical indicating whether to plot robust statistics for
 #' \code{Estimate} and \code{Est.Error}. Defaults to \code{FALSE}.
-#' @param prob Value between 0 and 1 indicating the desired probability
-#' level for the credible intervals. Defaults to 0.95.
+#' @param prob Value between 0 and 1 indicating the desired probability level
+#' for the credible intervals. Defaults to 0.95.
 #' @param dens_args A list of additional arguments passed to
 #' \code{stats::density}.
 #' @param common_xlim Logical indicating whether to share x-axis limits across
 #' beta panels. Defaults to \code{FALSE}.
 #' @param ncol Number of columns in the layout for beta panels.
-#' @param grid_length Number of grid points used when plotting the posterior CRM.
+#' @param grid_length Number of grid points used when plotting the posterior
+#' CRM.
 #' @param col Plot color.
 #' @param band_alpha Transparency of the credible interval band.
 #' @param line_lwd Line width.
@@ -34,29 +35,31 @@
 #' @details
 #' If \code{pars = NULL} and the number of \code{beta} coefficients is greater
 #' than \code{top_k}, the top \code{top_k} coefficients ordered by \code{order}
-#' are plotted. The default for \code{top_k} is 6 and the default sorting mechanism
-#' is the coefficient magnitude. If the number of coefficients is less than \code{top_k},
+#' are plotted. The default for \code{top_k} is 6 and the default sorting
+#' mechanism
+#' is the coefficient magnitude. If the number of coefficients is less than
+#' \code{top_k},
 #' all of them are plotted.
 #'
 #' @export
 plot_cdpglm <- function(
-    object,
-    what = c("beta", "crm", "rho"),
-    pars = NULL,
-    top_k = 6,
-    order = c("magnitude", "variance", "none"),
-    robust = FALSE,
-    prob = 0.95,
-    dens_args = list(adjust = 1, n = 512, na.rm = TRUE),
-    common_xlim = FALSE,
-    ncol = NULL,
-    grid_length = 200,
-    col = graphics::par("col"),
-    band_alpha = 0.25,
-    line_lwd = 2,
-    xlab = NULL, ylab = NULL, main = NULL,
-    xlim = NULL, ylim = NULL,
-    ...
+  object,
+  what = c("beta", "crm", "rho"),
+  pars = NULL,
+  top_k = 6,
+  order = c("magnitude", "variance", "none"),
+  robust = FALSE,
+  prob = 0.95,
+  dens_args = list(adjust = 1, n = 512, na.rm = TRUE),
+  common_xlim = FALSE,
+  ncol = NULL,
+  grid_length = 200,
+  col = graphics::par("col"),
+  band_alpha = 0.25,
+  line_lwd = 2,
+  xlab = NULL, ylab = NULL, main = NULL,
+  xlim = NULL, ylim = NULL,
+  ...
 ) {
   fit <- object
   what <- match.arg(what)
@@ -71,15 +74,16 @@ plot_cdpglm <- function(
   if (what == "beta") {
     beta_samples <- as.matrix(fit$samples$beta)
     if (is.null(colnames(beta_samples))) {
-      colnames(beta_samples) <- paste0("beta_", seq_len(ncol(beta_samples)) - 1L)
+      colnames(beta_samples) <- paste0("beta_", seq_len(ncol(beta_samples)) -
+                                         1L)
       colnames(beta_samples)[1] <- "Intercept"
     }
 
     btab <- as.data.frame(s$beta)
 
     center_all <- setNames(btab[, "Estimate"], rownames(btab))
-    lower_all  <- setNames(btab[, low_key], rownames(btab))
-    upper_all  <- setNames(btab[, upp_key], rownames(btab))
+    lower_all <- setNames(btab[, low_key], rownames(btab))
+    upper_all <- setNames(btab[, upp_key], rownames(btab))
 
     all_names <- rownames(btab)
     if (is.null(pars)) {
@@ -280,7 +284,8 @@ plot_cdpglm <- function(
 
     alpha <- (1 - prob) / 2
     lower <- apply(grid_cdf, 2, stats::quantile, probs = alpha, na.rm = TRUE)
-    upper <- apply(grid_cdf, 2, stats::quantile, probs = 1 - alpha, na.rm = TRUE)
+    upper <- apply(grid_cdf, 2, stats::quantile, probs = 1 - alpha,
+                   na.rm = TRUE)
 
     if (is.null(xlab)) xlab <- "Support"
     if (is.null(ylab)) ylab <- "Cumulative probability"

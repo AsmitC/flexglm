@@ -9,8 +9,8 @@
 \arguments{
 \item{object}{A fitted \code{dpglm} object.}
 
-\item{prob}{Value between 0 and 1 indicating the desired probability
-level for the credible intervals. Defaults to 0.95.}
+\item{prob}{Value between 0 and 1 indicating the desired probability level
+for the credible intervals. Defaults to 0.95.}
 
 \item{robust}{Logical indicating whether to show robust statistics for
 \code{Estimate} and \code{Est.Error}. Defaults to \code{FALSE}.}

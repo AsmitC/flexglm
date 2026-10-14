@@ -22,19 +22,19 @@ function. If \code{NULL}, a default link is chosen based on the response
 support: \code{"logit"} for responses in \code{(0, 1)}, \code{"log"} for
 nonnegative responses, and \code{"identity"} otherwise.}
 
-\item{dpglmControl}{Optional control arguments.
-Passed as an object of class "dpglmControl", which is constructed by the
-\code{dpglm.control} function.
+\item{dpglmControl}{Optional control arguments. Passed as an object of class
+"dpglmControl", which is constructed by the \code{dpglm.control} function.
 See \code{dpglm.control} documentation for details.}
 
-\item{thetaControl}{Optional control arguments for the theta update procedure.
-Passed as an object of class "thetaControl", which is constructed by the
-\code{theta.control} function.
-See \code{theta.control} documentation for details.}
+\item{thetaControl}{Optional control arguments for the theta update
+procedure. Passed as an object of class "thetaControl", which is constructed
+by the \code{theta.control} function. See \code{theta.control} documentation
+for details.}
 }
 \value{
 List of class "dpglm" containing information including
-posterior samples, Metropolis-Hastings acceptance rates, and model specification.
+posterior samples, Metropolis-Hastings acceptance rates, and model
+specification.
 See details for more information.
 }
 \description{
@@ -51,14 +51,17 @@ The "dpglm" class is a list of the following items.
 \item \code{data} Model data frame.
 \item \code{link} Link function. If a character string was passed to the
 \code{link} argument, then this will be an object of class "link-glm".
-Otherwise, it will be the list of three functions passed to the \code{link} argument.
+Otherwise, it will be the list of three functions passed to the \code{link}
+argument.
 \item \code{spt} Support of response variable \code{y} used in model fitting.
 \item \code{mu0} Mean of the reference distribution obtained by model fit.
 \item \code{burnin} The number of burn-in MCMC iterations.
 \item \code{thin} Thinning parameter used for MCMC
 \item \code{save} The number of saved MCMC iterations.
-\item \code{beta_acceptance} Proportion of accepted proposals for beta during MCMC.
-\item \code{crm_acceptance} Proportion of accepted proposals for CRM during MCMC.
+\item \code{beta_acceptance} Proportion of accepted proposals for beta during
+MCMC.
+\item \code{crm_acceptance} Proportion of accepted proposals for CRM during
+MCMC.
 }
 }
 \examples{
@@ -82,7 +85,7 @@ fit <- dpglm(
     spt = range(y),
     seed = 123
   )
- )
+)
 }
 
 }

@@ -1,6 +1,6 @@
 .Rproj.user
 .Rhistory
-.RDgit sata
+.RData
 .httr-oauth
 .DS_Store
 .quarto
@@ -8,7 +8,12 @@ inst/doc
 /doc/
 /Meta/
 .positai
-renv/
-.Rprofile
+.Renviron
+.vscode/
+.lintr
+tmp/
 *.tar.gz
 *.Rcheck/
+src/*.o
+src/*.so
+src/*.dll

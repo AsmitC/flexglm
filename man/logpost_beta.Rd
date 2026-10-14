@@ -4,7 +4,18 @@
 \alias{logpost_beta}
 \title{Log Posterior Kernel for Beta}
 \usage{
-logpost_beta(beta, linkinv, z, X, atoms, jumps, mu_beta, sigma_beta, h)
+logpost_beta(
+  beta,
+  linkinv,
+  z,
+  X,
+  atoms,
+  jumps,
+  mu_beta,
+  sigma_beta,
+  h,
+  theta = NULL
+)
 }
 \arguments{
 \item{beta}{Numeric vector of regression coefficients.}
@@ -25,9 +36,12 @@ logpost_beta(beta, linkinv, z, X, atoms, jumps, mu_beta, sigma_beta, h)
 \code{beta}.}
 
 \item{h}{Numeric vector of log-likelihood contributions from dependence.}
+
+\item{theta}{Optional tilting parameters at the supplied beta and CRM.}
 }
 \value{
-Numeric scalar giving the log posterior kernel, up to proportionality.
+Numeric scalar giving the log posterior kernel, up to
+proportionality.
 }
 \description{
 Evaluates the log posterior kernel for beta conditional on

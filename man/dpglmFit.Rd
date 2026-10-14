@@ -15,17 +15,18 @@ dpglmFit(formula, data, X, y, link, spt, mu0, init, dpglmControl, thetaControl)
 
 \item{y}{Numeric response vector.}
 
-\item{link}{Link object containing \code{linkfun}, \code{linkinv}, and \code{mu.eta}.}
+\item{link}{Link object containing \code{linkfun}, \code{linkinv}, and
+\code{mu.eta}.}
 
-\item{spt}{Numeric vector of length two giving the lower and upper bounds
-of the response support.}
+\item{spt}{Numeric vector of length two giving the lower and upper bounds of
+the response support.}
 
 \item{mu0}{Numeric target mean used to identify the reference distribution.}
 
 \item{init}{List of initial values for the MCMC algorithm.}
 
-\item{dpglmControl}{Object of class \code{"dpglmControl"} containing MCMC
-and tuning parameters.}
+\item{dpglmControl}{Object of class \code{"dpglmControl"} containing MCMC and
+tuning parameters.}
 
 \item{thetaControl}{Object of class \code{"thetaControl"} containing control
 arguments for the theta update procedure.}

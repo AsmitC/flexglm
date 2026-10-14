@@ -16,9 +16,8 @@ crm_sampler(
   eps,
   h = 0,
   n_draws = 1L,
-  n_grid = 1501L,
-  r_grid = 1501L,
-  mc_size = 5000L
+  n_grid = 3001L,
+  r_grid = 3001L
 )
 }
 \arguments{
@@ -41,6 +40,13 @@ crm_sampler(
 \item{eps}{Numeric boundary padding constant.}
 
 \item{h}{Numeric vector of log-likelihood contributions from dependence.}
+
+\item{n_draws}{Number of CRM draws sharing the same setup. Defaults to 1.}
+
+\item{n_grid}{Number of points in the jump-size grid. Defaults to 3001.}
+
+\item{r_grid}{Number of points in the response-support grid. Defaults to
+3001.}
 }
 \value{
 A list with components:
@@ -52,6 +58,7 @@ A list with components:
 }
 }
 \description{
-Generates a proposed CRM update.
+Generates a proposed CRM update using Poisson thinning, with grid integration
+and tail inversion when the expected thinning work is large.
 }
 \keyword{internal}

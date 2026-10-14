@@ -9,19 +9,19 @@
 #' nonnegative responses, and \code{"identity"} otherwise.
 #' @param group_index Vector specifying the group index for each observation.
 #' Must have the same length as the response.
-#' @param cdpglmControl Optional control arguments.
-#' Passed as an object of class "dpglmControl", which is constructed by the
-#' \code{dpglm.control} function.
-#' @param thetaControl Optional control arguments for the theta update procedure.
-#' Passed as an object of class "thetaControl", which is constructed by the
-#' \code{theta.control} function.
-#' See \code{theta.control} documentation for details.
+#' @param cdpglmControl Optional control arguments. Passed as an object of class
+#' "dpglmControl", which is constructed by the \code{dpglm.control} function.
+#' @param thetaControl Optional control arguments for the theta update
+#' procedure. Passed as an object of class "thetaControl", which is constructed
+#' by the \code{theta.control} function. See \code{theta.control} documentation
+#' for details.
 #'
 #' @return List of class "cdpglm" containing information including
-#' posterior samples, Metropolis-Hastings acceptance rates, and model specification.
+#' posterior samples, Metropolis-Hastings acceptance rates, and model
+#' specification.
 #' See details for more information.
-#' 
-#' @details 
+#'
+#' @details
 #' The "cdpglm" class is a list of the following items.
 #' \itemize{
 #' \item \code{samples} A list containing the MCMC samples for
@@ -32,16 +32,21 @@
 #' \item \code{data} Model data frame.
 #' \item \code{link} Link function. If a character string was passed to the
 #' \code{link} argument, then this will be an object of class "link-glm".
-#' Otherwise, it will be the list of three functions passed to the \code{link} argument.
+#' Otherwise, it will be the list of three functions passed to the \code{link}
+#' argument.
 #' \item \code{spt} Support of response variable \code{y} used in model fitting.
 #' \item \code{mu0} Mean of the reference distribution obtained by model fit.
 #' \item \code{burnin} The number of burn-in MCMC iterations.
 #' \item \code{thin} Thinning parameter used for MCMC
 #' \item \code{save} The number of saved MCMC iterations.
-#' \item \code{rho_prior_shape} Prior parameters for dependence parameter \code{rho}.
-#' \item \code{beta_acceptance} Proportion of accepted proposals for beta during MCMC.
-#' \item \code{crm_acceptance} Proportion of accepted proposals for CRM during MCMC.
-#' \item \code{rho_acceptance} Proportion of accepted proposals for rho during MCMC.
+#' \item \code{rho_prior_shape} Prior parameters for dependence parameter
+#' \code{rho}.
+#' \item \code{beta_acceptance} Proportion of accepted proposals for beta during
+#' MCMC.
+#' \item \code{crm_acceptance} Proportion of accepted proposals for CRM during
+#' MCMC.
+#' \item \code{rho_acceptance} Proportion of accepted proposals for rho during
+#' MCMC.
 #' }
 #'
 #' @examples
@@ -70,7 +75,7 @@
 #'     burnin = 10,
 #'     seed = 123
 #'   )
-#'  )
+#' )
 #' }
 #'
 #' @export
@@ -78,10 +83,9 @@ cdpglm <- function(formula, data = NULL, link = NULL,
                    group_index,
                    cdpglmControl = cdpglm.control(),
                    thetaControl = theta.control()) {
-
   # Model
   mf <- stats::model.frame(formula, data)
-  X  <- stats::model.matrix(attr(mf, "terms"), mf)
+  X <- stats::model.matrix(attr(mf, "terms"), mf)
 
   # Warn if covariates appear substantially uncentered
   if (ncol(X) > 1L) {
@@ -104,7 +108,7 @@ cdpglm <- function(formula, data = NULL, link = NULL,
       )
     }
   }
-  
+
   if (qr(X)$rank < ncol(X)) {
     stop("X is singular. Revise formula or data.", call. = FALSE)
   }
@@ -127,40 +131,44 @@ cdpglm <- function(formula, data = NULL, link = NULL,
     stop("cdpglm requires group_index.", call. = FALSE)
   }
   if (length(group_index) != length(y)) {
-    stop("group_index must have the same length as the response.", call. = FALSE)
+    stop("group_index must have the same length as the response.",
+         call. = FALSE)
   }
 
   test.vectorized <- TRUE
   if (is.character(link)) {
     test.vectorized <- FALSE
     link <- stats::make.link(link)
-  } else if (!is.list(link) ||
-             !all(c("linkfun", "linkinv", "mu.eta") %in% names(link))) {
+  } else if (
+    !is.list(link) ||
+      !all(c("linkfun", "linkinv", "mu.eta") %in% names(link))
+  ) {
     stop("link must be a string or a list containing linkfun, linkinv, mu.eta.",
-         call. = FALSE)
+      call. = FALSE
+    )
   }
 
   linkfun <- link$linkfun
   linkinv <- link$linkinv
-  mu.eta  <- link$mu.eta
+  mu.eta <- link$mu.eta
 
   if (test.vectorized) {
     is.vectorized <- function(f, data) {
-      out <- tryCatch(
-        f(data),
-        error = function(e) e,
-        warning = function(w) w
-      )
-      if (inherits(out, "error") || inherits(out, "warning")) return(FALSE)
+      out <- tryCatch(f(data), error = function(e) e, warning = function(w) w)
+      if (inherits(out, "error") || inherits(out, "warning")) {
+        return(FALSE)
+      }
       is.atomic(out) && length(out) == length(data)
     }
 
     linkfun.testdata <- rep(mean(y), 3)
-    inveta.testdata  <- seq(-1, 1, length.out = 3)
+    inveta.testdata <- seq(-1, 1, length.out = 3)
 
-    if (!is.vectorized(linkfun, linkfun.testdata) ||
+    if (
+      !is.vectorized(linkfun, linkfun.testdata) ||
         !is.vectorized(linkinv, inveta.testdata) ||
-        !is.vectorized(mu.eta, inveta.testdata)) {
+        !is.vectorized(mu.eta, inveta.testdata)
+    ) {
       stop("link must be vectorized.", call. = FALSE)
     }
   }
@@ -178,24 +186,28 @@ cdpglm <- function(formula, data = NULL, link = NULL,
   } else {
     if (!is.numeric(spt) || length(spt) != 2) {
       stop("For cdpglm, spt must be NULL or a numeric vector of length 2.",
-           call. = FALSE)
+        call. = FALSE
+      )
     }
 
     if (is.na(spt[1])) spt[1] <- y_lo
     if (is.na(spt[2])) spt[2] <- y_hi
 
-    if (spt[1] >= spt[2]) stop("Resolved support must satisfy spt[1] < spt[2].", call. = FALSE)
+    if (spt[1] >= spt[2]) {
+      stop("Resolved support must satisfy spt[1] < spt[2].", call. = FALSE)
+    }
   }
 
   ## MCMC Initialization
-  betaStart    <- cdpglmControl$betaStart
+  betaStart <- cdpglmControl$betaStart
   varbetaStart <- cdpglmControl$varbetaStart
-  thetaStart   <- cdpglmControl$thetaStart
-  crmStart     <- cdpglmControl$crmStart
+  thetaStart <- cdpglmControl$thetaStart
+  crmStart <- cdpglmControl$crmStart
 
-  if (is.null(betaStart) || is.null(crmStart) ||
-      is.null(varbetaStart) || is.null(thetaStart)) {
-
+  if (
+    is.null(betaStart) || is.null(crmStart) ||
+      is.null(varbetaStart) || is.null(thetaStart)
+  ) {
     gfit <- gldrm(
       formula      = formula,
       data         = data,
@@ -247,21 +259,21 @@ cdpglm <- function(formula, data = NULL, link = NULL,
   )
 
   out <- list(
-    samples     = fit$samples,
-    mb          = fit$mb,
-    Sb          = fit$Sb,
-    formula     = formula,
-    data        = data.frame(mf),
-    link        = link,
-    spt         = fit$spt,
-    mu0         = fit$mu0,
-    burnin      = cdpglmControl$burnin,
-    thin        = cdpglmControl$thin,
-    save        = cdpglmControl$save,
+    samples = fit$samples,
+    mb = fit$mb,
+    Sb = fit$Sb,
+    formula = formula,
+    data = data.frame(mf),
+    link = link,
+    spt = fit$spt,
+    mu0 = fit$mu0,
+    burnin = cdpglmControl$burnin,
+    thin = cdpglmControl$thin,
+    save = cdpglmControl$save,
     rho_prior_shape = cdpglmControl$rho_prior_shape,
-    beta_acceptance  = fit$beta_acceptance,
-    crm_acceptance   = fit$crm_acceptance,
-    rho_acceptance   = fit$rho_acceptance
+    beta_acceptance = fit$beta_acceptance,
+    crm_acceptance = fit$crm_acceptance,
+    rho_acceptance = fit$rho_acceptance
   )
 
   class(out) <- "cdpglm"

@@ -11,7 +11,8 @@ log_copula_gaussian(u, rho, corr)
 
 \item{rho}{Dependence parameter, interpreted as the pairwise correlation.}
 
-\item{corr}{Type of correlation structure. Must be one of \code{ex} or \code{ar1}.}
+\item{corr}{Type of correlation structure. Must be one of \code{ex} or
+\code{ar1}.}
 }
 \value{
 Scalar value of

@@ -80,24 +80,15 @@ Now, we will fit the `dpglm` model. The number of MCMC draws is kept small to sp
 
 ```{r}
 crm_psi_curve <- function(
-    fit,
-    draw = nrow(fit$crm_inputs$u),
-    grid = seq(
-      fit$spt[1],
-      fit$spt[2],
-      length.out = 1001L
-    )
+  fit, draw = nrow(fit$crm_inputs$u),
+  grid = seq(fit$spt[1], fit$spt[2], length.out = 1001L)
 ) {
   u <- as.numeric(fit$crm_inputs$u[draw, ])
   theta <- as.numeric(fit$crm_inputs$theta[draw, ])
 
   log_terms <- outer(theta, grid, `*`) + log(u)
 
-  log_psi <- apply(
-    log_terms,
-    MARGIN = 2L,
-    FUN = logSumExp
-  )
+  log_psi <- apply(log_terms, MARGIN = 2L, FUN = logSumExp)
 
   log_one_plus_psi <- vapply(
     log_psi,
@@ -114,19 +105,6 @@ crm_psi_curve <- function(
 ```
 
 ```{r}
-# fit <- dpglm(
-#   y ~ x,
-#   data = dat,
-#   link = "logit",
-#   dpglmControl = dpglm.control(
-#     burnin = 10,
-#     thin = 1,
-#     save = 50,
-#     spt = c(0, 1),
-#     seed = 832
-#   )
-# )
-
 fit <- dpglm(
   y ~ x,
   data = dat,
@@ -142,19 +120,15 @@ fit <- dpglm(
 ```
 
 ```{r}
-logSumExp <- function(x)
-{
+logSumExp <- function(x) {
   i <- which.max(x)
   m <- x[i]
-  lse <- log1p(sum(exp(x[-i]-m))) + m
+  lse <- log1p(sum(exp(x[-i] - m))) + m
   lse
 }
 
 
-psi_example <- crm_psi_curve(
-  fit = fit,
-  draw = nrow(fit$crm_inputs$u)
-)
+psi_example <- crm_psi_curve(fit = fit, draw = nrow(fit$crm_inputs$u))
 
 plot(
   psi_example$z,

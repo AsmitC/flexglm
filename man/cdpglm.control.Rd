@@ -18,7 +18,9 @@ cdpglm.control(
   mu0 = NULL,
   spt = NULL,
   eps = 1e-06,
-  rhoStart = 0.5,
+  n_grid = 3001L,
+  r_grid = 3001L,
+  rhoStart = NULL,
   corr = "ex",
   rho_proposal_sd = 0.1,
   rho_prior_shape = c(8, 2),
@@ -41,57 +43,73 @@ cdpglm.control(
 
 \item{Sb}{Prior scale / diagonal variance entries for beta. Defaults to NULL.}
 
-\item{M}{Number of random CRM atoms proposed at each CRM update. Defaults to 50.}
+\item{M}{Number of random CRM atoms proposed at each CRM update. Defaults to
+50.}
 
 \item{alpha}{CRM mass parameter. Defaults to 1.}
 
 \item{delta}{Tuning parameter for the \code{u} update. Defaults to 2.}
 
-\item{c0}{Bandwidth parameter used in the latent \code{z} update. Defaults to NULL.}
+\item{c0}{Bandwidth parameter used in the latent \code{z} update. Defaults to
+NULL.}
 
-\item{gamma}{Shrinkage parameter for the default prior variance on \code{beta}.
-Defaults to 1. Ignored if \code{Sb} is specified.}
+\item{gamma}{Shrinkage parameter for the default prior variance on
+\code{beta}. Defaults to 1. Ignored if \code{Sb} is specified.}
 
-\item{mu0}{Mean of the reference distribution. Defaults to \code{NULL}, in which case
-\code{mean(y)} is used internally.}
+\item{mu0}{Mean of the reference distribution. Defaults to \code{NULL}, in
+which case \code{mean(y)} is used internally.}
 
-\item{spt}{Theoretical support for the response in the DP-GLM. This should be a
-length-2 vector giving the lower and upper bounds. Defaults to \code{NULL}, in which
-case the support is inferred internally from the data as \code{c(min(y)-eps, max(y)+eps)}.}
+\item{spt}{Theoretical support for the response in the DP-GLM. This should be
+a length-2 vector giving the lower and upper bounds. Defaults to \code{NULL},
+in which case the support is inferred internally from the data as
+\code{c(min(y)-eps, max(y)+eps)}.}
 
-\item{eps}{Padding used when constructing default support bounds. Defaults to 1e-6.}
+\item{eps}{Padding used when constructing default support bounds. Defaults to
+1e-6.}
+
+\item{n_grid}{Number of grid points for CRM jump sizes. Defaults to 3001.}
+
+\item{r_grid}{Number of grid points for CRM locations. Defaults to 3001.}
 
 \item{rhoStart}{Numeric. Starting value for the copula dependence parameter
-\eqn{\rho}. Defaults to \code{0.5}.}
+\eqn{\rho}. Defaults to the midpoint of its admissible interval. Invalid
+values produce a warning and are replaced by this default.}
 
-\item{corr}{Character string specifying copula correlation structure.
-Options are \code{"ex"} for exchangeable correlation and \code{"ar1"} for AR(1) correlation.}
+\item{corr}{Character string specifying copula correlation structure. Options
+are \code{"ex"} for exchangeable correlation and \code{"ar1"} for AR(1)
+correlation.}
 
-\item{rho_proposal_sd}{Numeric. Proposal standard deviation for the random-walk
-update of \eqn{\rho} on the logit scale. Defaults to \code{0.1}.}
+\item{rho_proposal_sd}{Numeric. Proposal standard deviation for the
+random-walk update on the logit scale of the rescaled rho. Defaults to
+\code{0.1}.}
 
-\item{rho_prior_shape}{Numeric vector of length two. Parameters for the
-Beta prior on \eqn{\rho}. Defaults to \code{c(8, 2)}.}
+\item{rho_prior_shape}{Numeric vector of length two. Parameters for the Beta
+prior on rho rescaled to (0, 1). Defaults to \code{c(8, 2)}. The rho interval
+is (-1, 1) for AR(1), and (-1/(m - 1), 1) for exchangeable correlation, where
+m is the largest group size. If all groups are singletons, (-1, 1) is used.}
 
 \item{betaStart}{Initial value for \code{beta}. Defaults to NULL.}
 
-\item{varbetaStart}{Initial value for the proposal covariance of \code{beta}. Defaults to NULL.}
+\item{varbetaStart}{Initial value for the proposal covariance of \code{beta}.
+Defaults to NULL.}
 
 \item{thetaStart}{Initial value for \code{theta}. Defaults to NULL.}
 
-\item{crmStart}{Initial value for the CRM state, given as a list with components
-\code{z.tld} and \code{J.tld}. Defaults to NULL.}
+\item{crmStart}{Initial value for the CRM state, given as a list with
+components \code{z.tld} and \code{J.tld}. Defaults to NULL.}
 
 \item{seed}{Random seed. Defaults to NULL.}
 
-\item{robust}{Provides numerical stability. Defaults to \code{TRUE}. See details for more.}
+\item{robust}{Provides numerical stability. Defaults to \code{TRUE}. See
+details for more.}
 }
 \value{
 An object of class \code{"cdpglmControl"}; a list of control
 parameters passed to the internal CDPGLM fitting routine.
 }
 \description{
-Creates a list of control parameters used by \code{\link{cdpglm}} and \code{\link{cdpglmFit}}.
+Creates a list of control parameters used by \code{\link{cdpglm}} and
+\code{\link{cdpglmFit}}.
 }
 \examples{
 ctrl <- cdpglm.control(

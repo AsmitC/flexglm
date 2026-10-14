@@ -5,13 +5,12 @@ Authors@R:
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
-URL: https://github.com/AsmitC/dir_glm
-BugReports: https://github.com/AsmitC/dir_glm/issues
+URL: https://github.com/AsmitC/dirglm
+BugReports: https://github.com/AsmitC/dirglm/issues
 Imports: 
     gldrm,
     mvtnorm,
     extraDistr,
-    Matrix,
     Rcpp,
     RcppParallel
 Suggests: 

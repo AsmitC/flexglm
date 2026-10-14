@@ -91,7 +91,8 @@ test_that("cdpglm fits and returns expected object structure", {
 
 test_that("cdpglm respects burnin, thin, and save in stored samples", {
   dat <- test_data_cdpglm()
-  ctrl <- do.call(cdpglm.control, test_control_cdpglm(save = 4, burnin = 2, thin = 2))
+  ctrl <- do.call(cdpglm.control, test_control_cdpglm(save = 4, burnin = 2,
+                                                      thin = 2))
 
   fit <- suppressWarnings(
     cdpglm(
@@ -140,9 +141,12 @@ test_that("summary.cdpglm returns expected components", {
   expect_equal(rownames(s$rho), "rho")
   expect_equal(rownames(s$reference), c("min", "q25", "median", "q75", "max"))
 
-  expect_true(all(c("Estimate", "Est.Error", "l-95% CrI", "u-95% CrI") %in% colnames(s$beta)))
-  expect_true(all(c("Estimate", "Est.Error", "l-95% CrI", "u-95% CrI") %in% colnames(s$rho)))
-  expect_true(all(c("Estimate", "Est.Error", "l-95% CrI", "u-95% CrI") %in% colnames(s$reference)))
+  expect_true(all(c("Estimate", "Est.Error", "l-95% CrI",
+                    "u-95% CrI") %in% colnames(s$beta)))
+  expect_true(all(c("Estimate", "Est.Error", "l-95% CrI",
+                    "u-95% CrI") %in% colnames(s$rho)))
+  expect_true(all(c("Estimate", "Est.Error", "l-95% CrI",
+                    "u-95% CrI") %in% colnames(s$reference)))
 })
 
 test_that("plot_cdpglm runs for beta, crm, and rho", {
@@ -178,13 +182,14 @@ test_that("cdpglm.control rejects invalid MCMC settings", {
   expect_error(cdpglm.control(save = 1.5), "saved")
 
   expect_error(cdpglm.control(corr = "bad"), "corr")
-  expect_error(cdpglm.control(rhoStart = 0), "rho")
-  expect_error(cdpglm.control(rhoStart = 1), "rho")
+  expect_equal(cdpglm.control(rhoStart = 0)$rhoStart, 0)
+  expect_warning(cdpglm.control(rhoStart = 1), "rho")
   expect_error(cdpglm.control(rho_proposal_sd = 0), "rho_proposal_sd")
   expect_error(cdpglm.control(rho_prior_shape = c(8, -2)), "rho_prior_shape")
-  expect_error(cdpglm.control(rhoStart = NA_real_), "rhoStart")
+  expect_warning(cdpglm.control(rhoStart = NA_real_), "rhoStart")
   expect_error(cdpglm.control(rho_proposal_sd = NA_real_), "rho_proposal_sd")
-  expect_error(cdpglm.control(rho_prior_shape = c(8, NA_real_)), "rho_prior_shape")
+  expect_error(cdpglm.control(rho_prior_shape = c(8, NA_real_)),
+               "rho_prior_shape")
 })
 
 test_that("cdpglm rejects singular design matrices", {
@@ -232,10 +237,7 @@ test_that("cdpglm rejects invalid custom link objects", {
   dat <- test_data_cdpglm()
   ctrl <- do.call(cdpglm.control, test_control_cdpglm())
 
-  bad_link <- list(
-    linkfun = function(mu) mu,
-    linkinv = function(eta) eta
-  )
+  bad_link <- list(linkfun = function(mu) mu, linkinv = function(eta) eta)
 
   expect_error(
     suppressWarnings(
@@ -344,10 +346,7 @@ test_that("cdpglm and cdpglmFit agree", {
     beta = ctrl$betaStart,
     varbeta = ctrl$varbetaStart,
     theta = ctrl$thetaStart,
-    crm = list(
-      z.tld = ctrl$crmStart$z.tld,
-      J.tld = ctrl$crmStart$J.tld
-    ),
+    crm = list(z.tld = ctrl$crmStart$z.tld, J.tld = ctrl$crmStart$J.tld),
     rho = ctrl$rhoStart
   )
 

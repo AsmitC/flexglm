@@ -11,7 +11,8 @@ f0y(y, spt, f0)
 
 \item{spt}{(vector) support, \{s_j, j = 1(1)l\}, of response variable y}
 
-\item{f0}{(vector) \{f0(s_j), j=1(1)l\}: free parameter, f0(.) centering density}
+\item{f0}{(vector) \{f0(s_j), j=1(1)l\}: free parameter, f0(.) centering
+density}
 }
 \value{
 (vector) \{f0(y_i), i=1(1)n\}

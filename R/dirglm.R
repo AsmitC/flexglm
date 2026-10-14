@@ -6,25 +6,24 @@
 #'
 #' @param formula An object of class  \code{\link[stats]{formula}}.
 #' @param data An optional data frame containing the variables in the model.
-#' @param link Link function. Defaults to log.
-#' Can be a character string to be passed to the
-#' \code{make.link} function in the \code{stats} package (e.g. "identity",
-#' "logit", or "log").
-#' Alternatively, \code{link} can be a list containing three functions named
-#' \code{linkfun}, \code{linkinv}, and \code{mu.eta}. The first is the link
-#' function. The second is the inverse link function. The third is the derivative
-#' of the inverse link function. All three functions must be vectorized.
-#' @param dirglmControl Optional control arguments.
-#' Passed as an object of class "dirglmControl", which is constructed by the
-#' \code{dirglm.control} function.
+#' @param link Link function. Defaults to log. Can be a character string to be
+#' passed to the \code{make.link} function in the \code{stats} package (e.g.
+#' "identity", "logit", or "log"). Alternatively, \code{link} can be a list
+#' containing three functions named \code{linkfun}, \code{linkinv}, and
+#' \code{mu.eta}. The first is the link function. The second is the inverse link
+#' function. The third is the derivative of the inverse link function. All three
+#' functions must be vectorized.
+#' @param dirglmControl Optional control arguments. Passed as an object of class
+#' "dirglmControl", which is constructed by the \code{dirglm.control} function.
 #' See \code{dirglm.control} documentation for details.
-#' @param thetaControl Optional control arguments for the theta update procedure.
-#' Passed as an object of class "thetaControl", which is constructed by the
-#' \code{theta.control} function.
-#' See \code{theta.control} documentation for details.
+#' @param thetaControl Optional control arguments for the theta update
+#' procedure. Passed as an object of class "thetaControl", which is constructed
+#' by the \code{theta.control} function. See \code{theta.control} documentation
+#' for details.
 #'
 #' @return List of class "dirglm" containing information including
-#' posterior samples, Metropolis-Hastings acceptance rates, and model specification See
+#' posterior samples, Metropolis-Hastings acceptance rates, and model
+#' specification See
 #' details for more information.
 #'
 #' @details The arguments \code{linkfun}, \code{linkinv}, and \code{mu.eta}
@@ -36,7 +35,8 @@
 #'
 #' The "dirglm" class is a list of the following items.
 #' \itemize{
-#' \item \code{samples} A list containing the MCMC samples for \code{f0} and \code{beta}.
+#' \item \code{samples} A list containing the MCMC samples for \code{f0} and
+#' \code{beta}.
 #' \item \code{mb} Prior mean for \code{beta}.
 #' \item \code{Sb} Prior variance-covariance matrix for \code{beta}.
 #' \item \code{dir_pr_parm} Dirichlet prior parameter.
@@ -44,69 +44,79 @@
 #' \item \code{data} Model data frame.
 #' \item \code{link} Link function. If a character string was passed to the
 #' \code{link} argument, then this will be an object of class "link-glm".
-#' Otherwise, it will be the list of three functions passed to the \code{link} argument.
-#' \item \code{spt} Support, \eqn{\{s_j, \ j = 1, 2, ..., l\}}, of response variable \code{y}.
+#' Otherwise, it will be the list of three functions passed to the \code{link}
+#' argument.
+#' \item \code{spt} Support, \eqn{\{s_j, \ j = 1, 2, ..., l\}}, of response
+#' variable \code{y}.
 #' \item \code{mu0} Mean of the reference distribution \code{f0}.
 #' \item \code{burnin} The number of burn-in MCMC iterations.
 #' \item \code{thin} Thinning parameter used for MCMC
 #' \item \code{save} The number of saved MCMC iterations.
-#' \item \code{beta_acceptance} Proportion of accepted proposals for beta during MCMC.
-#' \item \code{f0_acceptance} Proportion of accepted proposals for f0 during MCMC.
+#' \item \code{beta_acceptance} Proportion of accepted proposals for beta during
+#' MCMC.
+#' \item \code{f0_acceptance} Proportion of accepted proposals for f0 during
+#' MCMC.
 #' }
 #'
 #' @examples
 #' \dontrun{
 #' set.seed(832)
-#' x <- rep(0:2, each=3)
-#' lam <- exp(0.3+0.6*x)
+#' x <- rep(0:2, each = 3)
+#' lam <- exp(0.3 + 0.6 * x)
 #' y <- rpois(length(x), lam)
 #' dat <- data.frame(x, y)
-#' fit.test <- dirglm(y ~ x, data=dat,
-#'                    dirglmControl=dirglm.control(burnin=10,thin=1,save=10))
+#' fit.test <- dirglm(y ~ x,
+#'   data = dat,
+#'   dirglmControl = dirglm.control(burnin = 10, thin = 1, save = 10)
+#' )
 #' summary(fit.test)
 #' }
 #'
 #' @export
 dirglm <- function(formula, data = NULL, link = "log",
-                   dirglmControl = dirglm.control(), thetaControl = theta.control()) {
-
+                   dirglmControl = dirglm.control(),
+                   thetaControl = theta.control()) {
   # Model initialization
   mf <- stats::model.frame(formula, data)
-  X  <- stats::model.matrix(attr(mf, "terms"), mf)
+  X <- stats::model.matrix(attr(mf, "terms"), mf)
   if (qr(X)$rank < ncol(X)) stop("X is singular. Revise formula or data.")
   attributes(X)[c("assign", "contrasts")] <- NULL
-  y  <- stats::model.response(mf, type = "numeric")
+  y <- stats::model.response(mf, type = "numeric")
 
   ## Extract link
   test.vectorized <- TRUE
   if (is.character(link)) {
     test.vectorized <- FALSE
     link <- stats::make.link(link)
-  } else if (!is.list(link) ||
-             !all(c("linkfun", "linkinv", "mu.eta") %in% names(link))) {
+  } else if (
+    !is.list(link) ||
+      !all(c("linkfun", "linkinv", "mu.eta") %in% names(link))
+  ) {
     stop("link must be a string or a list containing linkfun, linkinv, mu.eta")
   }
 
   # Check that all link functions are vectorized
   linkfun <- link$linkfun
   linkinv <- link$linkinv
-  mu.eta  <- link$mu.eta
+  mu.eta <- link$mu.eta
 
   if (test.vectorized) { # User has specified a custom link
     is.vectorized <- function(f, data) {
-      out <- tryCatch(f(data),
-                      error   = function(e) e,
-                      warning = function(w) w)
-      if (inherits(out, "error") || inherits(out, "warning")) return(FALSE)
+      out <- tryCatch(f(data), error   = function(e) e, warning = function(w) w)
+      if (inherits(out, "error") || inherits(out, "warning")) {
+        return(FALSE)
+      }
       is.atomic(out) && length(out) == length(data)
     }
 
     linkfun.testdata <- rep(mean(y), 3)
-    inveta.testdata  <- seq(-1, 1, length.out = 3)
+    inveta.testdata <- seq(-1, 1, length.out = 3)
 
-    if (!is.vectorized(linkfun, linkfun.testdata) ||
-        !is.vectorized(linkinv, inveta.testdata)  ||
-        !is.vectorized(mu.eta, inveta.testdata)) {
+    if (
+      !is.vectorized(linkfun, linkfun.testdata) ||
+        !is.vectorized(linkinv, inveta.testdata) ||
+        !is.vectorized(mu.eta, inveta.testdata)
+    ) {
       stop("link must be vectorized.")
     }
   }
@@ -119,8 +129,9 @@ dirglm <- function(formula, data = NULL, link = "log",
 
   # Initialize mu0 if not provided by the user
   mu0 <- dirglmControl$mu0
-  if (is.null(mu0)) mu0 <- mean(y)
-  else if (mu0 <= min(spt) || mu0 >= max(spt)) {
+  if (is.null(mu0)) {
+    mu0 <- mean(y)
+  } else if (mu0 <= min(spt) || mu0 >= max(spt)) {
     stop(paste0(
       "mu0 must lie within the range of observed values. Choose a different ",
       "value or set mu0=NULL to use the default value, mean(y)."
@@ -149,7 +160,7 @@ dirglm <- function(formula, data = NULL, link = "log",
   # f0
   f0Start <- dirglmControl$f0Start
   if (is.null(f0Start)) {
-    f0   <- rep(1 / l, l)
+    f0 <- rep(1 / l, l)
     tht0 <- getTheta(
       spt       = spt,
       f0        = f0,
@@ -157,7 +168,7 @@ dirglm <- function(formula, data = NULL, link = "log",
       sampprobs = NULL,
       ySptIndex = NULL
     )$theta
-    f0star  <- (f0 * exp(tht0 * spt)) / sum(f0 * exp(tht0 * spt))
+    f0star <- (f0 * exp(tht0 * spt)) / sum(f0 * exp(tht0 * spt))
     f0Start <- f0star
   }
 

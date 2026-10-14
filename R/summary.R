@@ -1,10 +1,10 @@
 #' Creates a summary of a fitted \code{dirglm} object
 #' @param object A fitted \code{dirglm} object
-#' @param prob value between 0 and 1 indicating the desired probability
-#' level for the credible intervals. Defaults to 0.95.
+#' @param prob value between 0 and 1 indicating the desired probability level
+#' for the credible intervals. Defaults to 0.95.
 #' @param robust Logical indicating whether to show robust statistics for
-#' \code{Estimate} and \code{Est.Error}. Defaults to \code{FALSE}. See
-#' details for more information.
+#' \code{Estimate} and \code{Est.Error}. Defaults to \code{FALSE}. See details
+#' for more information.
 #' @param ... Additional arguments, currently unused.
 #'
 #' @return A an object of class \code{summary.dirglm}. A list
@@ -19,11 +19,10 @@
 #'
 #' @method summary dirglm
 #' @export
-summary.dirglm <- function(object, prob=0.95, robust=FALSE, ...) {
-
+summary.dirglm <- function(object, prob = 0.95, robust = FALSE, ...) {
   fit <- object
   if (!inherits(fit, "dirglm")) stop("fit must be an object of class 'dirglm'")
-  if (prob <= 0 || prob >= 1)   stop("prob must be a value between 0 and 1")
+  if (prob <= 0 || prob >= 1) stop("prob must be a value between 0 and 1")
 
   # Get samples
   beta <- as.matrix(fit$samples$beta)
@@ -32,8 +31,7 @@ summary.dirglm <- function(object, prob=0.95, robust=FALSE, ...) {
     colnames(beta) <- paste0("beta_", seq_len(ncol(beta)) - 1L)
     colnames(beta)[1] <- "Intercept"
   }
-  f0   <- as.matrix(fit$samples$f0)
-  p <- ncol(beta); s <- ncol(f0)
+  f0 <- as.matrix(fit$samples$f0)
 
   pct <- prob * 100
   pct_str <- if (pct == floor(pct)) as.integer(pct) else pct
@@ -42,18 +40,18 @@ summary.dirglm <- function(object, prob=0.95, robust=FALSE, ...) {
 
   # Helper
   make_tbl <- function(mat) {
-    qs <- c((1 - prob)/2, 1 - (1 - prob)/2)
+    qs <- c((1 - prob) / 2, 1 - (1 - prob) / 2)
     stats <- t(vapply(seq_len(ncol(mat)), function(j) {
       col <- mat[, j]
       if (robust) {
-        est     <- median(col)
+        est <- median(col)
         est.err <- mad(col)
       } else {
-        est     <- mean(col)
+        est <- mean(col)
         est.err <- sd(col)
       }
       c(
-        Estimate    = est,
+        Estimate = est,
         `Est.Error` = est.err,
         quantile(col, qs[1], names = FALSE),
         quantile(col, qs[2], names = FALSE)
@@ -67,28 +65,28 @@ summary.dirglm <- function(object, prob=0.95, robust=FALSE, ...) {
 
   # Make output tables
   beta_tbl <- make_tbl(beta)
-  f0_tbl   <- make_tbl(f0)
+  f0_tbl <- make_tbl(f0)
 
   # Arrange metadata
   lf.name <- if (!is.null(fit$link$name)) fit$link$name else "custom"
-  form    <- paste(deparse(fit$formula), collapse = "")
-  nobs    <- nrow(fit$data)
-  burnin  <- fit$burnin
-  thin    <- fit$thin
-  save    <- fit$save
-  iter    <- burnin + thin * save
+  form <- paste(deparse(fit$formula), collapse = "")
+  nobs <- nrow(fit$data)
+  burnin <- fit$burnin
+  thin <- fit$thin
+  save <- fit$save
+  iter <- burnin + thin * save
 
   # Output
   meta <- list(
-    Link       = lf.name,
-    Formula    = form,
-    nobs       = nobs,
-    burnin     = burnin,
-    thin       = thin,
-    save       = save,
-    iter       = iter,
+    Link = lf.name,
+    Formula = form,
+    nobs = nobs,
+    burnin = burnin,
+    thin = thin,
+    save = save,
+    iter = iter,
     beta_acceptance = fit$beta_acceptance,
-    f0_acceptance   = fit$f0_acceptance
+    f0_acceptance = fit$f0_acceptance
   )
 
   out <- list(meta = meta, beta = beta_tbl, f0 = f0_tbl)
@@ -115,13 +113,17 @@ print.summary.dirglm <- function(x, digits = 3, ...) {
 
   # Metadata
   m <- x$meta
-  cat(sprintf("Formula: %s\n",                         m$Formula))
-  cat(sprintf("Link:    %s\n",                         m$Link))
-  cat(sprintf("Draws:   %d (burnin = %d, thin = %d, save = %d)\n",
-              m$iter, m$burnin, m$thin, m$save))
+  cat(sprintf("Formula: %s\n", m$Formula))
+  cat(sprintf("Link:    %s\n", m$Link))
+  cat(sprintf(
+    "Draws:   %d (burnin = %d, thin = %d, save = %d)\n",
+    m$iter, m$burnin, m$thin, m$save
+  ))
   cat(sprintf("Number of observations: %d\n", m$nobs))
-  cat(sprintf("Acceptance Ratio: beta = %.*f, f0 = %.*f\n\n",
-              digits, m$beta_acceptance, digits, m$f0_acceptance))
+  cat(sprintf(
+    "Acceptance Ratio: beta = %.*f, f0 = %.*f\n\n",
+    digits, m$beta_acceptance, digits, m$f0_acceptance
+  ))
 
   # Helper
   print_table <- function(df) {
@@ -147,8 +149,8 @@ print.summary.dirglm <- function(x, digits = 3, ...) {
 #' Creates a summary of a fitted \code{dpglm} object
 #'
 #' @param object A fitted \code{dpglm} object.
-#' @param prob Value between 0 and 1 indicating the desired probability
-#' level for the credible intervals. Defaults to 0.95.
+#' @param prob Value between 0 and 1 indicating the desired probability level
+#' for the credible intervals. Defaults to 0.95.
 #' @param robust Logical indicating whether to show robust statistics for
 #' \code{Estimate} and \code{Est.Error}. Defaults to \code{FALSE}.
 #' @param ... Additional arguments, currently unused.
@@ -166,7 +168,6 @@ print.summary.dirglm <- function(x, digits = 3, ...) {
 #' @method summary dpglm
 #' @export
 summary.dpglm <- function(object, prob = 0.95, robust = FALSE, ...) {
-
   fit <- object
   if (!inherits(fit, "dpglm")) stop("object must be an object of class 'dpglm'")
   if (prob <= 0 || prob >= 1) stop("prob must be a value between 0 and 1")
@@ -222,9 +223,9 @@ summary.dpglm <- function(object, prob = 0.95, robust = FALSE, ...) {
     ord <- order(z)
     z <- z[ord]
     J <- J[ord]
-    F <- cumsum(J)
+    cdf_values <- cumsum(J)
 
-    qfun <- function(p) z[which(F >= p)[1]]
+    qfun <- function(p) z[which(cdf_values >= p)[1]]
 
     c(
       min = min(z),
@@ -257,11 +258,7 @@ summary.dpglm <- function(object, prob = 0.95, robust = FALSE, ...) {
     crm_acceptance = fit$crm_acceptance
   )
 
-  out <- list(
-    meta = meta,
-    beta = beta_tbl,
-    crm = crm_tbl
-  )
+  out <- list(meta = meta, beta = beta_tbl, crm = crm_tbl)
 
   class(out) <- "summary.dpglm"
   out
@@ -285,11 +282,15 @@ print.summary.dpglm <- function(x, digits = 3, ...) {
   m <- x$meta
   cat(sprintf("Formula: %s\n", m$Formula))
   cat(sprintf("Link:    %s\n", m$Link))
-  cat(sprintf("Draws:   %d (burnin = %d, thin = %d, save = %d)\n",
-              m$iter, m$burnin, m$thin, m$save))
+  cat(sprintf(
+    "Draws:   %d (burnin = %d, thin = %d, save = %d)\n",
+    m$iter, m$burnin, m$thin, m$save
+  ))
   cat(sprintf("Number of observations: %d\n", m$nobs))
-  cat(sprintf("Acceptance Ratio: beta = %.*f, CRM = %.*f\n\n",
-              digits, m$beta_acceptance, digits, m$crm_acceptance))
+  cat(sprintf(
+    "Acceptance Ratio: beta = %.*f, CRM = %.*f\n\n",
+    digits, m$beta_acceptance, digits, m$crm_acceptance
+  ))
 
   print_table <- function(df) {
     mat <- as.matrix(df)
@@ -314,8 +315,8 @@ print.summary.dpglm <- function(x, digits = 3, ...) {
 #' Creates a summary of a fitted \code{cdpglm} object
 #'
 #' @param object A fitted \code{cdpglm} object.
-#' @param prob Value between 0 and 1 indicating the desired probability
-#' level for the credible intervals. Defaults to 0.95.
+#' @param prob Value between 0 and 1 indicating the desired probability level
+#' for the credible intervals. Defaults to 0.95.
 #' @param robust Logical indicating whether to show robust statistics for
 #' \code{Estimate} and \code{Est.Error}. Defaults to \code{FALSE}.
 #' @param ... Additional arguments, currently unused.
@@ -325,9 +326,10 @@ print.summary.dpglm <- function(x, digits = 3, ...) {
 #' @method summary cdpglm
 #' @export
 summary.cdpglm <- function(object, prob = 0.95, robust = FALSE, ...) {
-
   fit <- object
-  if (!inherits(fit, "cdpglm")) stop("object must be an object of class 'cdpglm'")
+  if (
+    !inherits(fit, "cdpglm")
+  ) stop("object must be an object of class 'cdpglm'")
   if (prob <= 0 || prob >= 1) stop("prob must be a value between 0 and 1")
 
   pct <- prob * 100
@@ -387,9 +389,9 @@ summary.cdpglm <- function(object, prob = 0.95, robust = FALSE, ...) {
     ord <- order(z)
     z <- z[ord]
     J <- J[ord]
-    F <- cumsum(J)
+    cdf_values <- cumsum(J)
 
-    qfun <- function(p) z[which(F >= p)[1]]
+    qfun <- function(p) z[which(cdf_values >= p)[1]]
 
     c(
       min = min(z),
@@ -454,13 +456,17 @@ print.summary.cdpglm <- function(x, digits = 3, ...) {
   cat(sprintf("Formula: %s\n", m$Formula))
   cat(sprintf("Link:    %s\n", m$Link))
   cat(sprintf("Copula correlation: %s\n", m$corr))
-  cat(sprintf("Draws:   %d (burnin = %d, thin = %d, save = %d)\n",
-              m$iter, m$burnin, m$thin, m$save))
+  cat(sprintf(
+    "Draws:   %d (burnin = %d, thin = %d, save = %d)\n",
+    m$iter, m$burnin, m$thin, m$save
+  ))
   cat(sprintf("Number of observations: %d\n", m$nobs))
-  cat(sprintf("Acceptance Ratio: beta = %.*f, CRM = %.*f, rho = %.*f\n\n",
-              digits, m$beta_acceptance,
-              digits, m$crm_acceptance,
-              digits, m$rho_acceptance))
+  cat(sprintf(
+    "Acceptance Ratio: beta = %.*f, CRM = %.*f, rho = %.*f\n\n",
+    digits, m$beta_acceptance,
+    digits, m$crm_acceptance,
+    digits, m$rho_acceptance
+  ))
 
   print_table <- function(df) {
     mat <- as.matrix(df)

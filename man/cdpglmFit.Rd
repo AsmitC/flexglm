@@ -27,12 +27,14 @@ cdpglmFit(
 
 \item{y}{Numeric response vector.}
 
-\item{group_index}{Vector identifying the dependence group for each observation.}
+\item{group_index}{Vector identifying the dependence group for each
+observation.}
 
-\item{link}{Link object containing \code{linkfun}, \code{linkinv}, and \code{mu.eta}.}
+\item{link}{Link object containing \code{linkfun}, \code{linkinv}, and
+\code{mu.eta}.}
 
-\item{spt}{Numeric vector of length two giving the lower and upper bounds
-of the response support.}
+\item{spt}{Numeric vector of length two giving the lower and upper bounds of
+the response support.}
 
 \item{mu0}{Numeric target mean used to identify the reference distribution.}
 

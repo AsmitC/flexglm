@@ -8,19 +8,21 @@
 #' @param thin Factor by which to thin MCMC iterations. Defaults to 10.
 #' @param save Number of MCMC samples to return. Defaults to 1000.
 #' @param rho MCMC update step size. A scalar in \eqn{(0, 1]}. Defaults to 0.1.
-#' @param mb Prior mean for beta. Defaults to a p-length vector whose entries are all 0.
-#' @param Sb Prior variance-covariance matrix for beta.
-#' Defaults to the p-dimensional identity matrix. See details for more information.
+#' @param mb Prior mean for beta. Defaults to a p-length vector whose entries
+#' are all 0.
+#' @param Sb Prior variance-covariance matrix for beta. Defaults to the
+#' p-dimensional identity matrix. See details for more information.
 #' @param dir_pr_parm Dirichlet prior parameter for f0. Defaults to the observed
 #' response frequency distribution. If specified, it should be a p-length vector
 #' with positive entries.
-#' @param gamma Shrinkage parameter for the (default) prior variance on \code{beta}.
-#' Defaults to 1. Will not be used if \code{Sb} is specified in \code{dirglm}.
+#' @param gamma Shrinkage parameter for the (default) prior variance on
+#' \code{beta}. Defaults to 1. Will not be used if \code{Sb} is specified in
+#' \code{dirglm}.
 #' @param mu0 Mean of the reference distribution. The reference distribution is
 #' not unique unless its mean is restricted to a specific value. This value can
-#' be any number within the range of observed values, but values near the boundary
-#' may cause numerical instability. This is an optional argument with \code{mean(y)}
-#' being the default value.
+#' be any number within the range of observed values, but values near the
+#' boundary may cause numerical instability. This is an optional argument with
+#' \code{mean(y)} being the default value.
 #' @param spt Theoretical support of the response variable.
 #' @param betaStart Initial value for the regression coefficients \code{beta}.
 #' Defaults to the output obtained by fitting \code{gldrm}.
@@ -35,39 +37,53 @@
 #'
 #' @examples
 #' \dontrun{
-#' ctrl <- dirglm.control(burnin = 100,
-#'                        thin = 2,
-#'                        save = 500,
-#'                        spt = 0:1,
-#'                        seed = 123)
+#' ctrl <- dirglm.control(
+#'   burnin = 100,
+#'   thin = 2,
+#'   save = 500,
+#'   spt = 0:1,
+#'   seed = 123
+#' )
 #' }
 #'
 #' @export
-dirglm.control <- function(burnin=100, thin=10, save=1000, rho=0.1,
-                           mb=NULL, Sb=NULL, dir_pr_parm=NULL,
-                           gamma=1, mu0=NULL, spt=NULL,
-                           betaStart=NULL, f0Start=NULL, joint.update=TRUE, seed=NULL)
-{
-  if (burnin < 0 || floor(burnin) != burnin) stop("Number of burn-in samples must be an integer >= 0")
-  if (thin   < 1 || floor(thin)   != thin)   stop("Thin must be an integer >= 1")
-  if (save   < 1 || floor(save)   != save)   stop("Number of saved iterations must be an integer >= 1")
-  if (!(rho <= 1 & rho > 0))                 stop("rho must lie in (0, 1]")
-  if (!is.logical(joint.update) ||
-      !joint.update %in% c(TRUE, FALSE))     stop("joint.update must be logical TRUE/FALSE")
-  ctrl <- list(burnin       = burnin,
-               thin         = thin,
-               save         = save,
-               rho          = rho,
-               mb           = mb,
-               Sb           = Sb,
-               dir_pr_parm  = dir_pr_parm,
-               gamma        = gamma,
-               mu0          = mu0,
-               spt          = spt,
-               betaStart    = betaStart,
-               f0Start      = f0Start,
-               joint.update = joint.update,
-               seed         = seed)
+dirglm.control <- function(burnin = 100, thin = 10, save = 1000, rho = 0.1,
+                           mb = NULL, Sb = NULL, dir_pr_parm = NULL,
+                           gamma = 1, mu0 = NULL, spt = NULL,
+                           betaStart = NULL, f0Start = NULL,
+                           joint.update = TRUE, seed = NULL) {
+  if (burnin < 0 || floor(burnin) != burnin) {
+    stop("Number of burn-in samples must be an integer >= 0")
+  }
+  if (thin < 1 || floor(thin) != thin) {
+    stop("Thin must be an integer >= 1")
+  }
+  if (save < 1 || floor(save) != save) {
+    stop("Number of saved iterations must be an integer >= 1")
+  }
+  if (!(rho <= 1 && rho > 0)) stop("rho must lie in (0, 1]")
+  if (
+    !is.logical(joint.update) ||
+      !joint.update %in% c(TRUE, FALSE)
+  ) {
+    stop("joint.update must be logical TRUE/FALSE")
+  }
+  ctrl <- list(
+    burnin = burnin,
+    thin = thin,
+    save = save,
+    rho = rho,
+    mb = mb,
+    Sb = Sb,
+    dir_pr_parm = dir_pr_parm,
+    gamma = gamma,
+    mu0 = mu0,
+    spt = spt,
+    betaStart = betaStart,
+    f0Start = f0Start,
+    joint.update = joint.update,
+    seed = seed
+  )
   class(ctrl) <- "dirglmControl"
   ctrl
 }
@@ -81,50 +97,49 @@ dirglm.control <- function(burnin=100, thin=10, save=1000, rho=0.1,
 #' @param data Data frame containing the variables appearing in \code{formula}.
 #' @param X Numeric design matrix.
 #' @param y Numeric response vector.
-#' @param link Link object containing \code{linkfun}, \code{linkinv},
-#' and \code{mu.eta}.
+#' @param link Link object containing \code{linkfun}, \code{linkinv}, and
+#' \code{mu.eta}.
 #' @param mu0 Numeric target mean used to identify the reference distribution.
 #' @param spt Numeric vector giving the support of the response variable.
 #' @param init List of initial values for the MCMC algorithm.
-#' @param dirglmControl Object of class \code{"dirglmControl"} containing
-#' MCMC and tuning parameters.
-#' @param thetaControl Object of class \code{"thetaControl"} containing
-#' control arguments for the theta update.
+#' @param dirglmControl Object of class \code{"dirglmControl"} containing MCMC
+#' and tuning parameters.
+#' @param thetaControl Object of class \code{"thetaControl"} containing control
+#' arguments for the theta update.
 #'
 #' @return
 #' A list containing posterior samples, acceptance rates, prior settings,
 #' and model specification information used by \code{\link{dirglm}}.
 #'
 #' @keywords internal
-dirglmFit <- function(formula, data, X, y,                # Data
-                      link,                               # Link
-                      mu0, spt, init,                     # Specs
-                      dirglmControl, thetaControl)        # Controls
-{
+dirglmFit <- function(formula, data, X, y,
+                      link,
+                      mu0, spt, init,
+                      dirglmControl, thetaControl) {
   # Extract dirglmControl parameters
-  burnin       <- dirglmControl$burnin
-  thin         <- dirglmControl$thin
-  save         <- dirglmControl$save
-  rho          <- dirglmControl$rho
-  mb           <- dirglmControl$mb
-  Sb           <- dirglmControl$Sb
-  dir_pr_parm  <- dirglmControl$dir_pr_parm
-  gamma        <- dirglmControl$gamma
+  burnin <- dirglmControl$burnin
+  thin <- dirglmControl$thin
+  save <- dirglmControl$save
+  rho <- dirglmControl$rho
+  mb <- dirglmControl$mb
+  Sb <- dirglmControl$Sb
+  dir_pr_parm <- dirglmControl$dir_pr_parm
+  gamma <- dirglmControl$gamma
   joint.update <- dirglmControl$joint.update
-  seed         <- dirglmControl$seed
+  seed <- dirglmControl$seed
 
   if (!is.null(seed)) set.seed(seed) # Set seed
 
   # Extract link
   linkfun <- link$linkfun
   linkinv <- link$linkinv
-  mu.eta  <- link$mu.eta
+  mu.eta <- link$mu.eta
 
   # MCMC Initialization
-  n    <- length(y)
-  X    <- as.matrix(X, nrow=n)
-  p    <- ncol(X)
-  l    <- length(spt)
+  n <- length(y)
+  X <- as.matrix(X, nrow = n)
+  p <- ncol(X)
+  l <- length(spt)
   iter <- burnin + thin * save
 
   beta_samples <- matrix(NA, nrow = save, ncol = p)
@@ -132,126 +147,150 @@ dirglmFit <- function(formula, data, X, y,                # Data
   if (is.null(beta_names)) beta_names <- paste0("beta_", seq_len(p) - 1L)
   beta_names[1] <- "Intercept"
   colnames(beta_samples) <- beta_names
-  f0_samples   <- matrix(NA, nrow = save, ncol = l)
+  f0_samples <- matrix(NA, nrow = save, ncol = l)
 
   beta <- init$beta
-  f0   <- init$f0
-  #beta_samples[1, ] <- beta
-  #f0_samples[1, ]   <- f0
+  f0 <- init$f0
 
   # Validate priors
 
   # Beta prior
   if (is.null(mb)) {
-    mprime  <- spt[1] + (spt[2] - spt[1]) * 0.25
-    Mprime  <- spt[l - 1] + (spt[l] - spt[l - 1]) * 0.75
+    mprime <- spt[1] + (spt[2] - spt[1]) * 0.25
+    Mprime <- spt[l - 1] + (spt[l] - spt[l - 1]) * 0.75
     gmprime <- linkfun(mprime)
     gMprime <- linkfun(Mprime)
     mid_spt <- (gmprime + gMprime) / 2
-    mb <- c(mid_spt, rep(0, p-1))
+    mb <- c(mid_spt, rep(0, p - 1))
+  } else if (length(mb) != p) {
+    stop("length(mb) must match the number of covariates.")
   }
-  else if (length(mb) != p) stop("length(mb) must match the number of covariates.")
 
   Sbdiag <- TRUE
   if (is.null(Sb)) {
-    mprime  <- spt[1] + (spt[2] - spt[1]) * 0.25
-    Mprime  <- spt[l - 1] + (spt[l] - spt[l - 1]) * 0.75
+    mprime <- spt[1] + (spt[2] - spt[1]) * 0.25
+    Mprime <- spt[l - 1] + (spt[l] - spt[l - 1]) * 0.75
     gmprime <- linkfun(mprime)
     gMprime <- linkfun(Mprime)
-    sdX     <- c(apply(as.matrix(X[, -1], nrow=n), 2, sd))
-    Sbvec   <- (gMprime - gmprime)^2 * c(100, (gamma / (2 * sdX))^2) # Re-scaling on the linear-predictor scale
-    Sb      <- diag(Sbvec)
-  } else if (!all(dim(Sb) == c(p, p))) stop("dim(Sb) must match the number of covariates.")
-  else if (!all(diag(Sb) > 0))         stop("Sb must be positive definite.")
-  else if (!identical(Sb, diag(diag(Sb)))) Sbdiag <- FALSE
+    sdX <- c(apply(as.matrix(X[, -1], nrow = n), 2, sd))
+    # Re-scaling on the linear-predictor scale
+    Sbvec <- (gMprime - gmprime)^2 * c(100, (gamma / (2 * sdX))^2)
+    Sb <- diag(Sbvec)
+  } else if (!all(dim(Sb) == c(p, p))) {
+    stop("dim(Sb) must match the number of covariates.")
+  } else if (!all(diag(Sb) > 0)) {
+    stop("Sb must be positive definite.")
+  } else if (!identical(Sb, diag(diag(Sb)))) {
+    Sbdiag <- FALSE
+  }
 
   if (!Sbdiag) {
     joint.update <- TRUE
-    warning("Beta prior variance-covariance matrix is non-diagonal. Forcing joint update.")
+    warning(paste0(
+      "Beta prior variance-covariance matrix is non-diagonal. ",
+      "Forcing joint update."
+    ))
   }
   if (!joint.update) Sb <- diag(Sb)
 
   # Dirichlet prior
+  ind_mt <- outer(y, spt, `==`)
   if (is.null(dir_pr_parm)) {
-    ind_mt      <- outer(y, spt, `==`)
-    alpha       <- 1
+    alpha <- 1
     dir_pr_parm <- alpha * colMeans(ind_mt)
-    eps         <- 1e-6
+    eps <- 1e-6
     dir_pr_parm <- dir_pr_parm + eps
-  } else if (!all(dir_pr_parm > 0) ||
-             length(dir_pr_parm)   != l) stop("dir_pr_parm must be positive with K atoms.")
+  } else if (
+    !all(dir_pr_parm > 0) ||
+      length(dir_pr_parm) != l
+  ) {
+    stop("dir_pr_parm must be positive with K atoms.")
+  }
 
   # Theta
-  mu      <- linkinv(X %*% beta)
-  out     <- tht_sol(spt, f0, mu, NULL)
-  tht     <- out$tht
-  btht    <- out$btht
-  bpr2    <- out$bpr2
-  f0_y    <- f0y(y, spt, f0)
+  mu <- linkinv(X %*% beta)
+  out <- tht_sol(spt, f0, mu, NULL)
+  tht <- out$tht
+  btht <- out$btht
+  bpr2 <- out$bpr2
+  f0_y <- f0y(y, spt, f0)
 
   n_acc_beta <- 0
-  n_acc_f0   <- 0
-  burning    <- TRUE
+  n_acc_f0 <- 0
+  burning <- TRUE
 
   # MCMC loop
   for (r in seq_len(iter)) {
     if (burning && r > burnin) burning <- FALSE
 
     # Beta update
-    Sig  <- Sigma_beta(X, mu, bpr2, rho, linkfun, mu.eta)
+    Sig <- Sigma_beta(X, mu, bpr2, rho, linkfun, mu.eta)
     if (joint.update) {
-      b_out <- beta_update_joint(X, y, spt, beta, Sig, f0, tht,
-                                 bpr2, btht, rho, linkfun, linkinv,
-                                 mu.eta, mb, Sb)
+      b_out <- beta_update_joint(
+        X, y, spt, beta, Sig, f0, tht,
+        bpr2, btht, rho, linkfun, linkinv,
+        mu.eta, mb, Sb
+      )
     } else {
-      b_out <- beta_update_separate(X, y, spt, beta, Sig, f0, tht,
-                                     bpr2, btht, rho, linkfun, linkinv,
-                                     mu.eta, mb, Sb)
+      b_out <- beta_update_separate(
+        X, y, spt, beta, Sig, f0, tht,
+        bpr2, btht, rho, linkfun, linkinv,
+        mu.eta, mb, Sb
+      )
     }
-    beta      <- b_out$cr_bt
-    tht       <- b_out$cr_tht
-    btht      <- b_out$cr_btht
-    bpr2      <- b_out$cr_bpr2
-    acc_beta  <- b_out$acc_beta
-    mu        <- linkinv(X %*% beta)
+    beta <- b_out$cr_bt
+    tht <- b_out$cr_tht
+    btht <- b_out$cr_btht
+    bpr2 <- b_out$cr_bpr2
+    acc_beta <- b_out$acc_beta
+    mu <- linkinv(X %*% beta)
 
     # Increment number of acceptances (beta)
-    if(!burning) n_acc_beta <- n_acc_beta + as.integer(acc_beta)
+    if (!burning) n_acc_beta <- n_acc_beta + acc_beta
 
     # f0 update
     propsl_dir_parm <- dir_parm(y, tht, btht, dir_pr_parm, ind_mt)
-    out             <- f0_update(y, spt, f0, f0_y, propsl_dir_parm,
-                                 mu, tht, bpr2, btht, dir_pr_parm, ind_mt)
-    f0     <- out$cr_f0
-    f0_y   <- out$cr_f0y
-    tht    <- out$cr_tht
-    btht   <- out$cr_btht
-    bpr2   <- out$cr_bpr2
+    out <- f0_update(
+      y, spt, f0, f0_y, propsl_dir_parm,
+      mu, tht, bpr2, btht, dir_pr_parm, ind_mt
+    )
+    f0 <- out$cr_f0
+    f0_y <- out$cr_f0y
+    tht <- out$cr_tht
+    btht <- out$cr_btht
+    bpr2 <- out$cr_bpr2
     acc_f0 <- out$acc_f0
 
     # Increment number of acceptances (f0)
-    if(!burning) n_acc_f0 <- n_acc_f0 + as.integer(acc_f0)
+    if (!burning) n_acc_f0 <- n_acc_f0 + as.integer(acc_f0)
 
     # Storage
-    if (r > burnin & (r - burnin) %% thin == 0) {
+    if (r > burnin && (r - burnin) %% thin == 0) {
       j <- (r - burnin) / thin
       beta_samples[j, ] <- beta
-      f0_samples[j, ]   <- f0
+      f0_samples[j, ] <- f0
     }
   }
 
   # Calculate acceptance ratio
   p_acc_beta <- n_acc_beta / (iter - burnin)
-  p_acc_f0   <- n_acc_f0 / (iter - burnin)
-  if (p_acc_beta < 0.01 || p_acc_f0 < 0.01) warning(paste0("Markov chain did not mix well. ",
-                                                           "Consider changing rho or increasing the number of iterations."))
-  else if (p_acc_beta > 0.8 || p_acc_f0 > 0.8) warning(paste0("Acceptance ratios are high. ",
-                                                              "Consider changing rho or increasing the number of iterations."))
+  p_acc_f0 <- n_acc_f0 / (iter - burnin)
+  if (p_acc_beta < 0.01 || p_acc_f0 < 0.01) {
+    warning(paste0(
+      "Markov chain did not mix well. ",
+      "Consider changing rho or increasing the number of iterations."
+    ))
+  } else if (p_acc_beta > 0.8 || p_acc_f0 > 0.8) {
+    warning(paste0(
+      "Acceptance ratios are high. ",
+      "Consider changing rho or increasing the number of iterations."
+    ))
+  }
 
   # Tilt each f0 sample
   f0star_samples <- matrix(0, nrow = nrow(f0_samples), ncol = length(spt))
-  for (iter in 1:nrow(f0_samples)) {
-    wh     <- f0_samples[iter, ]
+  for (iter in seq_len(nrow(f0_samples))) {
+    wh <- f0_samples[iter, ]
     theta0 <- getTheta(
       spt = spt,
       f0 = wh,
@@ -259,23 +298,24 @@ dirglmFit <- function(formula, data, X, y,                # Data
       sampprobs = NULL,
       ySptIndex = NULL
     )$theta
-    wh                     <- wh * exp(theta0 * spt)
-    wh                     <- wh / sum(wh)
+    wh <- wh * exp(theta0 * spt)
+    wh <- wh / sum(wh)
     f0star_samples[iter, ] <- wh
   }
-  f0_samples     <- f0star_samples  # projected f0 samples
+  f0_samples <- f0star_samples # projected f0 samples
 
-  colnames(f0_samples)   <- paste0("f0_", seq_len(l))
+  colnames(f0_samples) <- paste0("f0_", seq_len(l))
 
   # Output
-  list(samples     = list(beta = beta_samples,
-                          f0   = f0_samples),
-       mb                = mb,
-       Sb                = Sb,
-       dir_pr_parm       = dir_pr_parm,
-       spt               = spt,
-       mu0               = mu0,
-       beta_acceptance   = p_acc_beta,
-       f0_acceptance     = p_acc_f0,
-       iter              = iter)
+  list(
+    samples = list(beta = beta_samples, f0 = f0_samples),
+    mb = mb,
+    Sb = Sb,
+    dir_pr_parm = dir_pr_parm,
+    spt = spt,
+    mu0 = mu0,
+    beta_acceptance = p_acc_beta,
+    f0_acceptance = p_acc_f0,
+    iter = iter
+  )
 }

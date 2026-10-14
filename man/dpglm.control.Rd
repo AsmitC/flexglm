@@ -18,9 +18,8 @@ dpglm.control(
   mu0 = NULL,
   spt = NULL,
   eps = 1e-06,
-  n_grid = 1501L,
-  r_grid = 1501L,
-  mc_size = 5000L,
+  n_grid = 3001L,
+  r_grid = 3001L,
   betaStart = NULL,
   varbetaStart = NULL,
   thetaStart = NULL,
@@ -40,44 +39,50 @@ dpglm.control(
 
 \item{Sb}{Prior scale / diagonal variance entries for beta. Defaults to NULL.}
 
-\item{M}{Number of random CRM atoms proposed at each CRM update. Defaults to 50.}
+\item{M}{Number of random CRM atoms proposed at each CRM update. Defaults to
+50.}
 
 \item{alpha}{CRM mass parameter. Defaults to 1.}
 
 \item{delta}{Tuning parameter for the \code{u} update. Defaults to 2.}
 
-\item{c0}{Bandwidth parameter used in the latent \code{z} update. Defaults to NULL.}
+\item{c0}{Bandwidth parameter used in the latent \code{z} update. Defaults to
+NULL.}
 
-\item{gamma}{Shrinkage parameter for the default prior variance on \code{beta}.
-Defaults to 1. Ignored if \code{Sb} is specified.}
+\item{gamma}{Shrinkage parameter for the default prior variance on
+\code{beta}. Defaults to 1. Ignored if \code{Sb} is specified.}
 
-\item{mu0}{Mean of the reference distribution. Defaults to \code{NULL}, in which case
-\code{mean(y)} is used internally.}
+\item{mu0}{Mean of the reference distribution. Defaults to \code{NULL}, in
+which case \code{mean(y)} is used internally.}
 
-\item{spt}{Theoretical support for the response in the DP-GLM. This should be a
-length-2 vector giving the lower and upper bounds. Defaults to \code{NULL}, in which
-case the support is inferred internally from the data as \code{c(min(y)-eps, max(y)+eps)}.}
+\item{spt}{Theoretical support for the response in the DP-GLM. This should be
+a length-2 vector giving the lower and upper bounds. Defaults to \code{NULL},
+in which case the support is inferred internally from the data as
+\code{c(min(y)-eps, max(y)+eps)}.}
 
-\item{eps}{Padding used when constructing default support bounds. Defaults to 1e-6.}
+\item{eps}{Padding used when constructing default support bounds. Defaults to
+1e-6.}
 
-\item{n_grid}{Number of grid points used for the CRM jump-size grid. Defaults to 1501.}
+\item{n_grid}{Number of grid points used for the CRM jump-size grid. Defaults
+to 3001.}
 
-\item{r_grid}{Number of grid points used for the CRM response-support grid. Defaults to 1501.}
-
-\item{mc_size}{Number of Monte Carlo samples used to approximate \code{N(v)}}
+\item{r_grid}{Number of grid points used for the CRM response-support grid.
+Defaults to 3001.}
 
 \item{betaStart}{Initial value for \code{beta}. Defaults to NULL.}
 
-\item{varbetaStart}{Initial value for the proposal covariance of \code{beta}. Defaults to NULL.}
+\item{varbetaStart}{Initial value for the proposal covariance of \code{beta}.
+Defaults to NULL.}
 
 \item{thetaStart}{Initial value for \code{theta}. Defaults to NULL.}
 
-\item{crmStart}{Initial value for the CRM state, given as a list with components
-\code{z.tld} and \code{J.tld}. Defaults to NULL.}
+\item{crmStart}{Initial value for the CRM state, given as a list with
+components \code{z.tld} and \code{J.tld}. Defaults to NULL.}
 
 \item{seed}{Random seed. Defaults to NULL.}
 
-\item{robust}{Provides numerical stability. Defaults to \code{TRUE}. See details for more.}
+\item{robust}{Provides numerical stability. Defaults to \code{TRUE}. See
+details for more.}
 }
 \value{
 Object of S3 class "dpglmControl".
@@ -89,17 +94,21 @@ parameters for the DPGLM fitting function.
 This function returns control arguments for the \code{dpglm} algorithm.
 }
 \details{
-Setting \code{robust = TRUE} will tilt the CRM weights at each MCMC iteration
-to have the desired mean \code{mu0}. If \code{robust = FALSE}, these weights can
+Setting \code{robust = TRUE} will tilt the CRM weights at each MCMC
+iteration
+to have the desired mean \code{mu0}. If \code{robust = FALSE}, these weights
+can
 vary more in magnitude and lead to downstream numerical instability.
 }
 \examples{
 \dontrun{
-ctrl <- dpglm.control(burnin = 100,
-                      thin = 2,
-                      save = 500,
-                      spt = c(0, 1),
-                      seed = 123)
+ctrl <- dpglm.control(
+  burnin = 100,
+  thin = 2,
+  save = 500,
+  spt = c(0, 1),
+  seed = 123
+)
 }
 
 }

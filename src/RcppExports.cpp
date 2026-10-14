@@ -11,8 +11,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // crm_sampler_cpp
-List crm_sampler_cpp(const int M, const NumericVector& u, const NumericVector& zstar, const NumericVector& nstar, const NumericVector& theta, const double alpha, const double min_y, const double max_y, const double eps, NumericVector h, const int n_draws, const int n_grid, const int r_grid, const int mc_size);
-RcppExport SEXP _dirglm_crm_sampler_cpp(SEXP MSEXP, SEXP uSEXP, SEXP zstarSEXP, SEXP nstarSEXP, SEXP thetaSEXP, SEXP alphaSEXP, SEXP min_ySEXP, SEXP max_ySEXP, SEXP epsSEXP, SEXP hSEXP, SEXP n_drawsSEXP, SEXP n_gridSEXP, SEXP r_gridSEXP, SEXP mc_sizeSEXP) {
+List crm_sampler_cpp(const int M, const NumericVector& u, const NumericVector& zstar, const NumericVector& nstar, const NumericVector& theta, const double alpha, const double min_y, const double max_y, const double eps, NumericVector h, const int n_draws, const int n_grid, const int r_grid);
+RcppExport SEXP _dirglm_crm_sampler_cpp(SEXP MSEXP, SEXP uSEXP, SEXP zstarSEXP, SEXP nstarSEXP, SEXP thetaSEXP, SEXP alphaSEXP, SEXP min_ySEXP, SEXP max_ySEXP, SEXP epsSEXP, SEXP hSEXP, SEXP n_drawsSEXP, SEXP n_gridSEXP, SEXP r_gridSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -29,8 +29,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type n_draws(n_drawsSEXP);
     Rcpp::traits::input_parameter< const int >::type n_grid(n_gridSEXP);
     Rcpp::traits::input_parameter< const int >::type r_grid(r_gridSEXP);
-    Rcpp::traits::input_parameter< const int >::type mc_size(mc_sizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(crm_sampler_cpp(M, u, zstar, nstar, theta, alpha, min_y, max_y, eps, h, n_draws, n_grid, r_grid, mc_size));
+    rcpp_result_gen = Rcpp::wrap(crm_sampler_cpp(M, u, zstar, nstar, theta, alpha, min_y, max_y, eps, h, n_draws, n_grid, r_grid));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -97,7 +96,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_dirglm_crm_sampler_cpp", (DL_FUNC) &_dirglm_crm_sampler_cpp, 14},
+    {"_dirglm_crm_sampler_cpp", (DL_FUNC) &_dirglm_crm_sampler_cpp, 13},
     {"_dirglm_getTheta_cpp", (DL_FUNC) &_dirglm_getTheta_cpp, 12},
     {"_dirglm_log_post_u_cpp", (DL_FUNC) &_dirglm_log_post_u_cpp, 9},
     {"_dirglm_sampler_u_cpp", (DL_FUNC) &_dirglm_sampler_u_cpp, 10},

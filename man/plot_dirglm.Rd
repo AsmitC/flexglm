@@ -31,26 +31,28 @@ plot_dirglm(
 \arguments{
 \item{object}{A fitted \code{dirglm} object.}
 
-\item{what}{Specifies which posterior to plot. One of \code{"beta"}
-or \code{"f0"}. Defaults to \code{"beta"}.}
+\item{what}{Specifies which posterior to plot. One of \code{"beta"} or
+\code{"f0"}. Defaults to \code{"beta"}.}
 
-\item{pars}{Specifies the names or integer indices of
-the \code{beta} coefficients to plot. See details for more information.}
+\item{pars}{Specifies the names or integer indices of the \code{beta}
+coefficients to plot. See details for more information.}
 
-\item{top_k}{The number of \code{beta} coefficients to plot if \code{pars} is \code{NULL}
-and the number of coefficients is large. Defaults to 6.}
+\item{top_k}{The number of \code{beta} coefficients to plot if \code{pars} is
+\code{NULL} and the number of coefficients is large. Defaults to 6.}
 
 \item{order}{Specifies the sorting mechanism for \code{beta} coefficients.
-One of \code{"magnitude"}, \code{"variance"}, or \code{"none"}. Defaults to \code{"magnitude"}.}
+One of \code{"magnitude"}, \code{"variance"}, or \code{"none"}. Defaults to
+\code{"magnitude"}.}
 
 \item{robust}{Logical indicating whether to plot robust statistics for
 \code{Estimate} and \code{Est.Error}. Defaults to \code{FALSE}.}
 
-\item{prob}{Value between 0 and 1 indicating the desired probability
-level for the credible intervals. Defaults to 0.95.}
+\item{prob}{Value between 0 and 1 indicating the desired probability level
+for the credible intervals. Defaults to 0.95.}
 
 \item{dens_args}{A list of additional arguments passed to the
-\code{stats::density} function for plotting the posterior density of \code{beta}.}
+\code{stats::density} function for plotting the posterior density of
+\code{beta}.}
 
 \item{common_xlim}{Logical indicating whether to share the x-axis limits
 across all \code{beta} panels. Defaults to \code{FALSE}.}
@@ -59,7 +61,8 @@ across all \code{beta} panels. Defaults to \code{FALSE}.}
 
 \item{col}{A string specifying the desired plot color.}
 
-\item{band_alpha}{Specifies the transparency of the CrI band. Defaults to 0.25.}
+\item{band_alpha}{Specifies the transparency of the CrI band. Defaults to
+0.25.}
 
 \item{line_lwd}{Line width for the posterior density lines. Defaults to 2.}
 
@@ -89,7 +92,9 @@ Plot DirGLM Posterior Distributions
 \details{
 If \code{pars = NULL} and the number of \code{beta} coefficients is greater
 than \code{top_k}, the top \code{top_k} coefficients ordered by \code{order}
-are plotted. The default for \code{top_k} is 6 and the default sorting mechanism
-is the coefficient magnitude. If the number of coefficients is less than \code{top_k},
+are plotted. The default for \code{top_k} is 6 and the default sorting
+mechanism
+is the coefficient magnitude. If the number of coefficients is less than
+\code{top_k},
 all of them are plotted.
 }

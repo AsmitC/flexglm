@@ -31,7 +31,9 @@ sampler_u(u, zstar, nstar, theta, alpha, delta, min_y, max_y, eps, h = 0)
 Numeric vector of updated auxiliary variables.
 }
 \description{
-Performs MH update for the auxiliary variables \code{u}.
-Each component is proposed from a Gamma random walk.
+Performs ten MH sweeps for the auxiliary variables \code{u}.
+Each component is proposed from a Gamma random walk. The compiled sampler
+reuses cached sums and bounds acceptance decisions before evaluating the
+full log posterior when needed.
 }
 \keyword{internal}

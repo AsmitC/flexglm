@@ -1,17 +1,9 @@
 test_data <- function() {
-  data.frame(
-    y = c(0, 0.2, 0.4, 0.6, 0.8, 1),
-    x = c(-2, -1, 0, 1, 2, 3)
-  )
+  data.frame(y = c(0, 0.2, 0.4, 0.6, 0.8, 1), x = c(-2, -1, 0, 1, 2, 3))
 }
 
 test_that("dirglm.control returns expected control object", {
-  ctrl <- dirglm.control(
-    burnin = 2,
-    thin = 1,
-    save = 3,
-    seed = 832
-  )
+  ctrl <- dirglm.control(burnin = 2, thin = 1, save = 3, seed = 832)
 
   expect_s3_class(ctrl, "dirglmControl")
   expect_equal(ctrl$burnin, 2)
@@ -44,7 +36,8 @@ test_that("dirglm fits and returns expected object structure", {
   expect_equal(dim(fit$samples$f0), c(3, length(unique(dat$y))))
 
   expect_equal(colnames(fit$samples$beta), c("Intercept", "x"))
-  expect_equal(colnames(fit$samples$f0), paste0("f0_", seq_along(unique(dat$y))))
+  expect_equal(colnames(fit$samples$f0), paste0("f0_",
+                                                seq_along(unique(dat$y))))
 
   expect_true(is.numeric(fit$beta_acceptance))
   expect_true(is.numeric(fit$f0_acceptance))
@@ -96,8 +89,10 @@ test_that("summary.dirglm returns expected components", {
   expect_equal(rownames(s$beta), c("Intercept", "x"))
   expect_equal(rownames(s$f0), paste0("f0_", seq_along(unique(dat$y))))
 
-  expect_true(all(c("Estimate", "Est.Error", "l-95% CrI", "u-95% CrI") %in% colnames(s$beta)))
-  expect_true(all(c("Estimate", "Est.Error", "l-95% CrI", "u-95% CrI") %in% colnames(s$f0)))
+  expect_true(all(c("Estimate", "Est.Error", "l-95% CrI",
+                    "u-95% CrI") %in% colnames(s$beta)))
+  expect_true(all(c("Estimate", "Est.Error", "l-95% CrI",
+                    "u-95% CrI") %in% colnames(s$f0)))
 })
 
 test_that("plot_dirglm runs for beta and f0", {
@@ -142,10 +137,7 @@ test_that("dirglm.control rejects invalid tuning parameters", {
 
 test_that("dirglm rejects singular design matrices", {
   # x constant, linear dependence
-  dat <- data.frame(
-    y = c(0, 0.2, 0.4, 0.6, 0.8, 1),
-    x = rep(1, 6)
-  )
+  dat <- data.frame(y = c(0, 0.2, 0.4, 0.6, 0.8, 1), x = rep(1, 6))
 
   expect_error(
     suppressWarnings(dirglm(
@@ -158,8 +150,8 @@ test_that("dirglm rejects singular design matrices", {
         save = 3,
         spt = sort(unique(dat$y)),
         seed = 832
-      ))
-    ),
+      )
+    )),
     "singular"
   )
 })
@@ -180,8 +172,8 @@ test_that("dirglm rejects invalid mu0 values", {
         spt = sort(unique(dat$y)),
         mu0 = 1.5,
         seed = 832
-      ))
-    ),
+      )
+    )),
     "mu0"
   )
 })
@@ -190,10 +182,7 @@ test_that("dirglm rejects invalid custom link objects", {
   dat <- test_data()
 
   # Missing mu.eta
-  bad_link <- list(
-    linkfun = function(mu) mu,
-    linkinv = function(eta) eta
-  )
+  bad_link <- list(linkfun = function(mu) mu, linkinv = function(eta) eta)
 
   expect_error(
     suppressWarnings(dirglm(
@@ -206,8 +195,8 @@ test_that("dirglm rejects invalid custom link objects", {
         save = 3,
         spt = sort(unique(dat$y)),
         seed = 832
-      ))
-    ),
+      )
+    )),
     "link"
   )
 })
@@ -232,8 +221,8 @@ test_that("dirglm rejects non-vectorized custom links", {
         save = 3,
         spt = sort(unique(dat$y)),
         seed = 832
-      ))
-    ),
+      )
+    )),
     "vectorized"
   )
 })
@@ -404,10 +393,7 @@ test_that("dirglm and dirglmFit agree", {
       link = stats::make.link("logit"),
       mu0 = ctrl$mu0,
       spt = ctrl$spt,
-      init = list(
-        beta = ctrl$betaStart,
-        f0 = ctrl$f0Start
-      ),
+      init = list(beta = ctrl$betaStart, f0 = ctrl$f0Start),
       dirglmControl = ctrl,
       thetaControl = theta.control()
     )

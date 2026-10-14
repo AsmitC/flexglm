@@ -26,8 +26,8 @@ dirglmFit(
 
 \item{y}{Numeric response vector.}
 
-\item{link}{Link object containing \code{linkfun}, \code{linkinv},
-and \code{mu.eta}.}
+\item{link}{Link object containing \code{linkfun}, \code{linkinv}, and
+\code{mu.eta}.}
 
 \item{mu0}{Numeric target mean used to identify the reference distribution.}
 
@@ -35,11 +35,11 @@ and \code{mu.eta}.}
 
 \item{init}{List of initial values for the MCMC algorithm.}
 
-\item{dirglmControl}{Object of class \code{"dirglmControl"} containing
-MCMC and tuning parameters.}
+\item{dirglmControl}{Object of class \code{"dirglmControl"} containing MCMC
+and tuning parameters.}
 
-\item{thetaControl}{Object of class \code{"thetaControl"} containing
-control arguments for the theta update.}
+\item{thetaControl}{Object of class \code{"thetaControl"} containing control
+arguments for the theta update.}
 }
 \value{
 A list containing posterior samples, acceptance rates, prior settings,

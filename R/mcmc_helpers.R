@@ -11,11 +11,10 @@
 #' @return A numeric scalar.
 #'
 #' @keywords internal
-logSumExp <- function(x)
-{
+logSumExp <- function(x) {
   i <- which.max(x)
   m <- x[i]
-  lse <- log1p(sum(exp(x[-i]-m))) + m
+  lse <- log1p(sum(exp(x[-i] - m))) + m
   lse
 }
 
@@ -26,10 +25,10 @@ logSumExp <- function(x)
 #'
 #' @param spt Numeric vector giving the support points of the response.
 #' @param f0 Numeric vector giving the baseline mass or density evaluated on
-#'   \code{spt}.
+#' \code{spt}.
 #' @param mu Numeric vector of target conditional means.
 #' @param thtst Optional numeric vector of starting values for the tilting
-#'   parameters.
+#' parameters.
 #'
 #' @return A list with components:
 #' \describe{
@@ -47,11 +46,11 @@ tht_sol <- function(spt, f0, mu, thtst) {
     sampprobs = NULL,
     ySptIndex = NULL,
     thetaStart = thtst,
-    thetaControl = gldrm::theta.control(logsumexp=TRUE)
+    thetaControl = gldrm::theta.control(logsumexp = TRUE)
   )
   tht <- out$theta
   bpr2 <- out$bPrime2
-  lw   <- sweep(tcrossprod(out$theta, spt), 2, log(f0), "+")
+  lw <- sweep(tcrossprod(out$theta, spt), 2, log(f0), "+")
   btht <- apply(lw, 1, logSumExp)
   return(list(bpr2 = bpr2, tht = tht, btht = btht))
 }
@@ -72,8 +71,8 @@ tht_sol <- function(spt, f0, mu, thtst) {
 #'
 #' @keywords internal
 dir_parm <- function(y, tht, btht, dir_pr_parm, ind_mt) {
-  wgt  <- (1 / exp(tht * y - btht)) / sum(1 / exp(tht * y - btht))
-  wgt  <- as.numeric(wgt)
+  wgt <- (1 / exp(tht * y - btht)) / sum(1 / exp(tht * y - btht))
+  wgt <- as.numeric(wgt)
   parm <- dir_pr_parm + colSums(ind_mt * wgt)
 
   return(parm)
@@ -86,10 +85,10 @@ dir_parm <- function(y, tht, btht, dir_pr_parm, ind_mt) {
 #'
 #' @return (vector) log Dirichlet pdf
 #' @keywords internal
-lDir = function(x, a){
-  a0 = sum(a)
-  logB = sum(lgamma(a))-lgamma(a0)
-  f = sum( (a-1)*log(x) ) - logB
+lDir <- function(x, a) {
+  a0 <- sum(a)
+  logB <- sum(lgamma(a)) - lgamma(a0)
+  f <- sum((a - 1) * log(x)) - logB
   return(f)
 }
 
@@ -97,7 +96,8 @@ lDir = function(x, a){
 #'
 #' @param y (vector) response variable
 #' @param spt (vector) support, \{s_j, j = 1(1)l\}, of response variable y
-#' @param f0 (vector) \{f0(s_j), j=1(1)l\}: free parameter, f0(.) centering density
+#' @param f0 (vector) \{f0(s_j), j=1(1)l\}: free parameter, f0(.) centering
+#' density
 #'
 #' @return (vector) \{f0(y_i), i=1(1)n\}
 #' @keywords internal
@@ -118,12 +118,11 @@ f0y <- function(y, spt, f0) {
 #' @keywords internal
 Sigma_beta <- function(X, mu, bpr2, rho, linkfun, mu.eta) {
   eta <- linkfun(mu)
-  # gpr <- as.numeric(1 / mu)              # due to log link: g'(mu) = 1 / mu
-  gpr <- as.numeric(1 / mu.eta(eta))       # Updated for general link
-  gprsq_bpr2 <- gpr ^ 2 * bpr2
+  gpr <- as.numeric(1 / mu.eta(eta)) # Updated for general link
+  gprsq_bpr2 <- gpr^2 * bpr2
   Xstar <- X / sqrt(gprsq_bpr2)
   info_mt <- t(Xstar) %*% Xstar
-  Sigma <- rho ^ 2 * solve(info_mt)
+  Sigma <- rho^2 * solve(info_mt)
 
   return(Sigma)
 }
@@ -155,7 +154,6 @@ f0_update <- function(y,
                       cr_btht,
                       dir_pr_parm,
                       ind_mt) {
-  n <- length(y)
   l <- length(spt)
   eps <- .Machine$double.eps
 
@@ -177,21 +175,25 @@ f0_update <- function(y,
       pr_llik <- sum(pr_tht * y - pr_btht + log(pr_f0y))
       cr_llik <- sum(cr_tht * y - cr_btht + log(cr_f0y))
 
-      R_pf0 = sum((dir_pr_parm-1)*log(pr_f0/cr_f0))
+      R_pf0 <- sum((dir_pr_parm - 1) * log(pr_f0 / cr_f0))
 
-      cr_qf0  <- lDir(cr_f0, pr_dir_parm)
-      pr_qf0  <- lDir(pr_f0, cr_dir_parm)
+      cr_qf0 <- lDir(cr_f0, pr_dir_parm)
+      pr_qf0 <- lDir(pr_f0, cr_dir_parm)
       alp <- min(0, (pr_llik - cr_llik + R_pf0 + cr_qf0 - pr_qf0))
 
       if (log(runif(1)) < alp) {
-        cr_f0   <- pr_f0
-        cr_tht  <- pr_tht
+        cr_f0 <- pr_f0
+        cr_tht <- pr_tht
         cr_btht <- pr_btht
-        cr_f0y  <- pr_f0y
+        cr_f0y <- pr_f0y
         cr_bpr2 <- pr_bpr2
-        acc_f0  <- TRUE
-      } else acc_f0 <- FALSE
-    } else acc_f0 <- FALSE # Closes line 141
+        acc_f0 <- TRUE
+      } else {
+        acc_f0 <- FALSE
+      }
+    } else {
+      acc_f0 <- FALSE
+    } # Closes line 141
   } # Closes line 129
   return(
     list(
@@ -204,7 +206,6 @@ f0_update <- function(y,
     )
   )
 }
-
 
 
 #' Function for updating beta (jointly)
@@ -242,7 +243,10 @@ beta_update_joint <- function(X,
   pr_bt <- as.vector(mvtnorm::rmvnorm(1, mean = cr_bt, sigma = cr_Sig))
   pr_mu <- as.numeric(linkinv(X %*% pr_bt))
 
-  if (sum(spt[1] <= pr_mu & pr_mu <= spt[l]) == n) {
+  if (
+    all(is.finite(pr_mu)) &&
+      sum(spt[1] <= pr_mu & pr_mu <= spt[l]) == n
+  ) {
     out <- tht_sol(spt, cr_f0, pr_mu, cr_tht)
     pr_bpr2 <- out$bpr2
     pr_tht <- out$tht
@@ -251,22 +255,10 @@ beta_update_joint <- function(X,
 
     pr_llik <- sum(pr_tht * y - pr_btht)
     cr_llik <- sum(cr_tht * y - cr_btht)
-    pr_pbt <- mvtnorm::dmvnorm(pr_bt,
-                      mean = mb,
-                      sigma = Sb,
-                      log = T)
-    cr_pbt <- mvtnorm::dmvnorm(cr_bt,
-                      mean = mb,
-                      sigma = Sb,
-                      log = T)
-    cr_qbt <- mvtnorm::dmvnorm(cr_bt,
-                      mean = pr_bt,
-                      sigma = pr_Sig,
-                      log = T)
-    pr_qbt <- mvtnorm::dmvnorm(pr_bt,
-                      mean = cr_bt,
-                      sigma = cr_Sig,
-                      log = T)
+    pr_pbt <- mvtnorm::dmvnorm(pr_bt, mean = mb, sigma = Sb, log = TRUE)
+    cr_pbt <- mvtnorm::dmvnorm(cr_bt, mean = mb, sigma = Sb, log = TRUE)
+    cr_qbt <- mvtnorm::dmvnorm(cr_bt, mean = pr_bt, sigma = pr_Sig, log = TRUE)
+    pr_qbt <- mvtnorm::dmvnorm(pr_bt, mean = cr_bt, sigma = cr_Sig, log = TRUE)
 
     alp <- min(0, pr_llik - cr_llik + pr_pbt - cr_pbt + cr_qbt - pr_qbt)
 
@@ -280,7 +272,7 @@ beta_update_joint <- function(X,
     } else {
       acc_beta <- FALSE
     }
-  } else { # Closes line 226
+  } else {
     acc_beta <- FALSE
   }
   return(list(
@@ -291,7 +283,6 @@ beta_update_joint <- function(X,
     acc_beta = acc_beta
   ))
 }
-
 
 
 #' Function for updating beta (one at a time)
@@ -327,12 +318,16 @@ beta_update_separate <- function(X,
   p <- dim(X)[2]
   l <- length(spt)
   cr_sd <- sqrt(diag(cr_Sig))
-  for (j in 1:p) {
+  accepted <- logical(p)
+  for (j in seq_len(p)) {
     pr_bt <- cr_bt
     pr_bt[j] <- cr_bt[j] + rnorm(1, mean = 0, sd = cr_sd[j])
-    pr_mu <- as.numeric(linkinv(X %*% pr_bt))        # Updated for general link
+    pr_mu <- as.numeric(linkinv(X %*% pr_bt)) # Updated for general link
 
-    if (sum(spt[1] <= pr_mu & pr_mu <= spt[l]) == n) {
+    if (
+      all(is.finite(pr_mu)) &&
+        sum(spt[1] <= pr_mu & pr_mu <= spt[l]) == n
+    ) {
       out <- tht_sol(spt, cr_f0, pr_mu, cr_tht)
       pr_tht <- out$tht
       pr_btht <- out$btht
@@ -342,36 +337,26 @@ beta_update_separate <- function(X,
 
       pr_llik <- sum(pr_tht * y - pr_btht)
       cr_llik <- sum(cr_tht * y - cr_btht)
-      pr_pbt <- dnorm(pr_bt[j],
-                      mean = mb[j],
-                      sd = sqrt(Sb[j]),
-                      log = T)
-      cr_pbt <- dnorm(cr_bt[j],
-                      mean = mb[j],
-                      sd = sqrt(Sb[j]),
-                      log = T)
-      cr_qbt <- dnorm(cr_bt[j],
-                      mean = pr_bt[j],
-                      sd = pr_sd[j],
-                      log = T)
-      pr_qbt <- dnorm(pr_bt[j],
-                      mean = cr_bt[j],
-                      sd = cr_sd[j],
-                      log = T)
+      pr_pbt <- dnorm(pr_bt[j], mean = mb[j], sd = sqrt(Sb[j]), log = TRUE)
+      cr_pbt <- dnorm(cr_bt[j], mean = mb[j], sd = sqrt(Sb[j]), log = TRUE)
+      cr_qbt <- dnorm(cr_bt[j], mean = pr_bt[j], sd = pr_sd[j], log = TRUE)
+      pr_qbt <- dnorm(pr_bt[j], mean = cr_bt[j], sd = cr_sd[j], log = TRUE)
 
       alp <- min(0, pr_llik - cr_llik + pr_pbt - cr_pbt + cr_qbt - pr_qbt)
 
       if (log(runif(1)) < alp) {
-        cr_bt    <- pr_bt
-        cr_tht   <- pr_tht
-        cr_btht  <- pr_btht
-        cr_bpr2  <- pr_bpr2
-        acc_beta <- TRUE
+        cr_bt <- pr_bt
+        cr_tht <- pr_tht
+        cr_btht <- pr_btht
+        cr_bpr2 <- pr_bpr2
+        cr_Sig <- pr_Sig
+        cr_sd <- pr_sd
+        accepted[j] <- TRUE
       } else {
-        acc_beta <- FALSE
+        accepted[j] <- FALSE
       }
-    } else { # Closes line 316
-      acc_beta <- FALSE
+    } else {
+      accepted[j] <- FALSE
     }
   }
   return(list(
@@ -379,18 +364,17 @@ beta_update_separate <- function(X,
     cr_tht   = cr_tht,
     cr_btht  = cr_btht,
     cr_bpr2  = cr_bpr2,
-    acc_beta = acc_beta
+    acc_beta = mean(accepted)
   ))
 }
 
-#####################################
-### FUNCTIOMS BELOW ARE FOR DPGLM ###
-#####################################
+### FUNCTIONS BELOW ARE FOR DPGLM ###
 # -----------------------------------------------------------------------------#
 #                               Update z                                      #
 # -----------------------------------------------------------------------------#
 
-z_sampler_unifK <- function(y, c0, crm.atoms, crm.jumps, tht, min_y, max_y, eps) {
+z_sampler_unifK <- function(y, c0, crm.atoms, crm.jumps, tht, min_y, max_y,
+                            eps) {
   n <- length(y)
   lower <- crm.atoms - c0
   upper <- crm.atoms + c0
@@ -401,9 +385,10 @@ z_sampler_unifK <- function(y, c0, crm.atoms, crm.jumps, tht, min_y, max_y, eps)
   for (i in 1:n) {
     indices <- y[i] >= lower & y[i] <= upper
     indx <- which(indices)
-    log_prob <- -log(width[indx]) + (tht[i] * crm.atoms[indx]) + log(crm.jumps[indx])
+    log_prob <- -log(width[indx]) + (tht[i] * crm.atoms[indx]) +
+      log(crm.jumps[indx])
     prob <- exp(log_prob - max(log_prob))
-    if(sum(indices) == 1){
+    if (sum(indices) == 1) {
       z[i] <- crm.atoms[indices]
     } else {
       z[i] <- sample(crm.atoms[indx], 1, prob = prob)
@@ -416,7 +401,7 @@ c0_silverman <- function(y) {
   n <- length(y)
   sd_y <- sd(y)
   iqr_y <- IQR(y)
-  return(0.9 * min(sd_y, iqr_y / 1.34) * n^(-1/5))
+  return(0.9 * min(sd_y, iqr_y / 1.34) * n^(-1 / 5))
 }
 
 #' Resample Unique Latent Atom Locations
@@ -435,10 +420,10 @@ c0_silverman <- function(y) {
 #' }
 #'
 #' @keywords internal
-resample_zstar <- function(z){
+resample_zstar <- function(z) {
   z_table <- table(z)
-  zstar   <- as.numeric(names(z_table))
-  nstar   <- as.numeric(z_table)
+  zstar <- as.numeric(names(z_table))
+  nstar <- as.numeric(z_table)
   return(list(zstar = zstar, nstar = nstar))
 }
 
@@ -457,17 +442,25 @@ resample_zstar <- function(z){
 #' @param sigma_beta Numeric vector giving the prior standard deviations for
 #' \code{beta}.
 #' @param h Numeric vector of log-likelihood contributions from dependence.
+#' @param theta Optional tilting parameters at the supplied beta and CRM.
 #'
-#' @return Numeric scalar giving the log posterior kernel, up to proportionality.
+#' @return Numeric scalar giving the log posterior kernel, up to
+#' proportionality.
 #'
 #' @keywords internal
-logpost_beta <- function(beta, linkinv, z, X, atoms, jumps, mu_beta, sigma_beta, h){
-  n <- length(z)
+logpost_beta <- function(beta, linkinv, z, X, atoms, jumps, mu_beta,
+                         sigma_beta, h, theta = NULL) {
   mu <- linkinv(X %*% beta)
-  theta <- getTheta(spt = atoms, f0 = jumps, mu = mu,
-                            ySptIndex = NULL, sampprobs = NULL)$theta
+  if (is.null(theta)) {
+    theta <- getTheta(
+      spt = atoms, f0 = jumps, mu = mu,
+      ySptIndex = NULL, sampprobs = NULL
+    )$theta
+  }
   btheta <- b_theta(theta, atoms, jumps)
-  log_post <- sum(theta * z + h - btheta) - sum((beta - mu_beta)^2 / (2 * sigma_beta^2)) # others const in beta
+  # others const in beta
+  log_post <- sum(theta * z + h - btheta) -
+    sum((beta - mu_beta)^2 / (2 * sigma_beta^2))
   return(log_post)
 }
 
@@ -486,13 +479,13 @@ logpost_beta <- function(beta, linkinv, z, X, atoms, jumps, mu_beta, sigma_beta,
 #' @return Numeric scalar giving the log likelihood.
 #'
 #' @keywords internal
-loglik <- function(linkinv, z, X, beta, atoms, jumps){
+loglik <- function(linkinv, z, X, beta, atoms, jumps) {
   n <- length(z)
-  #mu <- exp(X %*% beta) / (1 + exp(X %*% beta))
-  # mu <- plogis(X %*% beta) # E old
   mu <- linkinv(X %*% beta)
-  theta <- getTheta(spt = atoms, f0 = jumps, mu = mu, ySptIndex = NULL,
-                            sampprobs = NULL)$theta
+  theta <- getTheta(
+    spt = atoms, f0 = jumps, mu = mu, ySptIndex = NULL,
+    sampprobs = NULL
+  )$theta
 
   btheta <- b_theta(theta, atoms, jumps)
 
@@ -524,49 +517,16 @@ loglik <- function(linkinv, z, X, beta, atoms, jumps){
 #'
 #' @keywords internal
 log_post_u <- function(u, zstar, nstar, theta, alpha, min_y, max_y, eps, h) {
-  # Number of grid points for the continuous part
-  R <- 250
-
-  # Construct a grid for integration over the continuous part (G_0, uniform on (0,1))
-  #z_grid <- seq(eps, 1 - eps, length.out = R)
-  z_grid <- seq(min_y + eps, max_y - eps, length.out = R)
-  diff_z <- diff(z_grid)[1]  # uniform grid spacing
-
-  # ---- Continuous part ----
-  # For each grid point v in z_grid, compute in a stabilized manner:
-  #    log(1 + sum_i u_i * exp(theta_i * v))
-  cont_vals <- sapply(z_grid, function(v) {
-    A <- log(u) + theta * v + h
-    max_A <- max(A)
-    S <- exp(max_A) * sum(exp(A - max_A))
-    log1p(S)  # log(1+S) computed in a numerically stable way
-  })
-
-  # Riemann-sum approximation of the integral over the continuous part:
-  integral_continuous <- sum(cont_vals) * diff_z
-
-  # ---- Discrete part ----
-  # For each unique atom in zstar, with multiplicity given by nstar,
-  # compute: nstar * log(1 + sum_i u_i * exp(theta_i * zstar))
-  disc_vals <- sapply(zstar, function(v) {
-    A <- log(u) + theta * v + h
-    max_A <- max(A)
-    S <- exp(max_A) * sum(exp(A - max_A))
-    log1p(S)
-  })
-
-  sum_discrete <- sum(disc_vals * nstar)
-
-  # Combine the continuous and discrete contributions
-  neg_log_post <- alpha * integral_continuous + sum_discrete
-
-  return(-neg_log_post)
+  if (length(h) == 1L) h <- rep(h, length(u))
+  log_post_u_cpp(u, zstar, nstar, theta, alpha, min_y, max_y, eps, h)
 }
 
 #' Update u
 #'
-#' Performs MH update for the auxiliary variables \code{u}.
-#' Each component is proposed from a Gamma random walk.
+#' Performs ten MH sweeps for the auxiliary variables \code{u}.
+#' Each component is proposed from a Gamma random walk. The compiled sampler
+#' reuses cached sums and bounds acceptance decisions before evaluating the
+#' full log posterior when needed.
 #'
 #' @param u Numeric vector of current auxiliary variables.
 #' @param zstar Numeric vector of unique latent atom locations.
@@ -582,30 +542,6 @@ log_post_u <- function(u, zstar, nstar, theta, alpha, min_y, max_y, eps, h) {
 #' @return Numeric vector of updated auxiliary variables.
 #'
 #' @keywords internal
-sampler_u <- function(u, zstar, nstar, theta, alpha, delta, min_y, max_y, eps, h) {
-  n <- length(u) # Get the length of u
-
-  for (i in seq_len(n)) {
-    u_star <- u
-    # Sample from Gamma distribution: shape = delta, scale = u[i] / delta
-    u_star[i] <- rgamma(1, shape = delta, scale = u[i] / delta)
-
-    # Compute logQ_ratio: log(q(ui | ui_star)) - log(q(ui_star | ui))
-    logQ_ratio <- dgamma(u[i], shape = delta, scale = u_star[i] / delta, log = TRUE) -
-      dgamma(u_star[i], shape = delta, scale = u[i] / delta, log = TRUE)
-
-    # Compute logratio
-    logratio <- log_post_u(u_star, zstar, nstar, theta, alpha, min_y, max_y, eps, h) -
-      log_post_u(u, zstar, nstar, theta, alpha, min_y, max_y, eps, h) + logQ_ratio
-
-    # Metropolis-Hastings acceptance step
-    if (log(runif(1)) < logratio) {
-      u[i] <- u_star[i]
-    } # else, u[i] remains unchanged
-  }
-
-  return(u)
-}
 sampler_u <- function(u, zstar, nstar, theta, alpha, delta,
                       min_y, max_y, eps, h = 0) {
   if (length(h) == 1L) {
@@ -628,8 +564,10 @@ sampler_u <- function(u, zstar, nstar, theta, alpha, delta,
 
 #' Compute b(theta) for discrete base measure
 #'
-#' Calculates \eqn{b(\theta) = \log \left( \int \exp(\theta z) dG_0(z) \right)} for a discrete base measure \eqn{G_0}
-#' with support points \code{spt} and weights \code{f0}, using log-sum-exp trick for numerical stability.
+#' Calculates \eqn{b(\theta) = \log \left( \int \exp(\theta z) dG_0(z) \right)}
+#' for a discrete base measure \eqn{G_0}
+#' with support points \code{spt} and weights \code{f0}, using log-sum-exp trick
+#' for numerical stability.
 #'
 #' @param theta Numeric vector of parameter values.
 #' @param spt Numeric vector of support points for the base measure.
@@ -651,12 +589,13 @@ b_theta <- function(theta, spt, f0) {
     m + log(sum(exp(x - m)))
   })
 
-  return(as.vector(result))  # Ensure the output is a vector
+  return(as.vector(result)) # Ensure the output is a vector
 }
 
 #' Sample a CRM Proposal
 #'
-#' Generates a proposed CRM update.
+#' Generates a proposed CRM update using Poisson thinning, with grid integration
+#' and tail inversion when the expected thinning work is large.
 #'
 #' @param M Integer. Number of random CRM atoms to generate.
 #' @param u Numeric vector of auxiliary variables.
@@ -669,6 +608,11 @@ b_theta <- function(theta, spt, f0) {
 #' @param eps Numeric boundary padding constant.
 #' @param h Numeric vector of log-likelihood contributions from dependence.
 #'
+#' @param n_draws Number of CRM draws sharing the same setup. Defaults to 1.
+#' @param n_grid Number of points in the jump-size grid. Defaults to 3001.
+#' @param r_grid Number of points in the response-support grid. Defaults to
+#' 3001.
+#'
 #' @return A list with components:
 #' \describe{
 #'   \item{\code{RL}}{Random atom locations.}
@@ -679,20 +623,19 @@ b_theta <- function(theta, spt, f0) {
 #'
 #' @keywords internal
 crm_sampler <- function(
-    M,
-    u,
-    zstar,
-    nstar,
-    theta,
-    alpha,
-    min_y,
-    max_y,
-    eps,
-    h = 0,
-    n_draws = 1L,
-    n_grid = 1501L,
-    r_grid = 1501L,
-    mc_size = 5000L
+  M,
+  u,
+  zstar,
+  nstar,
+  theta,
+  alpha,
+  min_y,
+  max_y,
+  eps,
+  h = 0,
+  n_draws = 1L,
+  n_grid = 3001L,
+  r_grid = 3001L
 ) {
   crm_sampler_cpp(
     M = M,
@@ -707,14 +650,11 @@ crm_sampler <- function(
     h = h,
     n_draws = n_draws,
     n_grid = n_grid,
-    r_grid = r_grid,
-    mc_size = mc_size
+    r_grid = r_grid
   )
 }
 
-######################################
-### FUNCTIOMS BELOW ARE FOR CDPGLM ###
-######################################
+### FUNCTIONS BELOW ARE FOR CDPGLM ###
 
 #' Compute observation-specific marginal CDFs
 #'
@@ -743,8 +683,7 @@ crm_sampler <- function(
 #'
 #' @keywords internal
 marginal_cdf_unif_kde <- function(y, crm.atoms, crm.jumps, theta, c0,
-                         min_y, max_y) {
-
+                                  min_y, max_y) {
   eps <- 1e-6
   n <- length(y)
 
@@ -761,23 +700,16 @@ marginal_cdf_unif_kde <- function(y, crm.atoms, crm.jumps, theta, c0,
   Fy <- numeric(n)
 
   for (j in seq_len(n)) {
-
     ## Observation-specific mixture weights (log-scale)
     logw <- log(crm.jumps) + theta[j] * crm.atoms
-    logw <- logw - max(logw)   # log-sum-exp stabilization
+    logw <- logw - max(logw) # log-sum-exp stabilization
     w <- exp(logw)
     w <- w / sum(w)
 
     ## Mixture CDF at y_j
     yj <- y[j]
     Fy[j] <- sum(
-      w * ifelse(
-        yj < lower, 0,
-        ifelse(
-          yj > upper, 1,
-          (yj - lower) / width
-        )
-      )
+      w * ifelse(yj < lower, 0, ifelse(yj > upper, 1, (yj - lower) / width))
     )
   }
 
@@ -801,7 +733,8 @@ marginal_cdf_unif_kde <- function(y, crm.atoms, crm.jumps, theta, c0,
 #'
 #' @param u Numeric vector of marginal CDF values in \eqn{(0,1)}.
 #' @param rho Dependence parameter, interpreted as the pairwise correlation.
-#' @param corr Type of correlation structure. Must be one of \code{ex} or \code{ar1}.
+#' @param corr Type of correlation structure. Must be one of \code{ex} or
+#' \code{ar1}.
 #'
 #' @return
 #' Scalar value of
@@ -859,13 +792,13 @@ log_copula_gaussian <- function(u, rho, corr) {
 #' }
 #'
 #' @param y Numeric vector of outcomes.
-#' @param group_index Vector indicating group membership for each
-#'   observation in \code{y}.
+#' @param group_index Vector indicating group membership for each   observation
+#' in \code{y}.
 #' @param rho Copula dependence parameter.
 #' @param crm.atoms Vector of CRM atoms \eqn{(z_{\ell})}.
 #' @param crm.jumps Vector of CRM jump sizes \eqn{(J_{\ell})}.
-#' @param theta Numeric vector of covariate effects with length equal
-#'   to \code{length(y)}.
+#' @param theta Numeric vector of covariate effects with length equal   to
+#' \code{length(y)}.
 #' @param c0 Half-width of the uniform kernel.
 #' @param min_y Global lower bound of the outcome support.
 #' @param max_y Global upper bound of the outcome support.
@@ -878,11 +811,12 @@ log_copula_gaussian <- function(u, rho, corr) {
 log_copula_contribution_by_obs <- function(y, group_index, rho, corr,
                                            crm.atoms, crm.jumps, theta, c0,
                                            min_y, max_y) {
-
   ## 1. Compute marginal CDFs internally
-  Fy <- marginal_cdf_unif_kde(y = y,
-                     crm.atoms = crm.atoms, crm.jumps = crm.jumps, theta = theta, c0 = c0,
-                     min_y = min_y, max_y = max_y)
+  Fy <- marginal_cdf_unif_kde(
+    y = y,
+    crm.atoms = crm.atoms, crm.jumps = crm.jumps, theta = theta, c0 = c0,
+    min_y = min_y, max_y = max_y
+  )
 
   ## 2. Initialize observation-level output
   logcop_obs <- numeric(length(y))
@@ -904,47 +838,47 @@ log_copula_contribution_by_obs <- function(y, group_index, rho, corr,
   logcop_obs
 }
 
-#' Log posterior kernel for the copula dependence parameter rho
+# Bounds for the copula correlation
+rho_bounds <- function(corr, group_index = NULL) {
+  if (corr == "ar1") return(c(-1, 1))
+  if (corr != "ex") stop("corr must be one of 'ex' or 'ar1'.")
+  if (!length(group_index) || anyNA(group_index)) {
+    stop("group_index must contain non-missing group labels.")
+  }
+  m <- max(table(group_index))
+  c(if (m > 1L) -1 / (m - 1L) else -1, 1)
+}
+
+# Initial rho
+check_rho_start <- function(rho, bounds, corr) {
+  default <- mean(bounds)
+  if (is.null(rho)) return(default)
+  if (
+    !is.numeric(rho) || length(rho) != 1L || !is.finite(rho) ||
+      rho <= bounds[1] || rho >= bounds[2]
+  ) {
+    warning(sprintf(
+      "rhoStart must lie in (%g, %g) for corr = '%s'; using %g.",
+      bounds[1], bounds[2], corr, default
+    ), call. = FALSE)
+    return(default)
+  }
+  as.numeric(rho)
+}
+
+#' Log posterior kernel for rho
 #'
-#' This function evaluates the log posterior of rho under the
-#' simplified joint distribution
+#' Adds the copula contribution and a Beta prior on rho rescaled to (0, 1).
 #'
-#' \deqn{
-#' \pi(\rho \mid y, \lambda, \beta)
-#' \propto
-#' \prod_i c(y_i, \lambda, \beta, \rho)\, p(\rho)
-#' }
-#'
-#' where all marginal likelihood terms are handled elsewhere and the
-#' input \code{logc_obs} already contains the log copula density
-#' contributions evaluated at the current value of \eqn{\rho}.
-#'
-#' @param rho Scalar copula dependence parameter, must lie in \eqn{(0,1)}.
-#' @param logc_obs Numeric vector of log copula contributions whose sum
-#'   equals
-#'   \deqn{
-#'   \log \prod_i c(y_i, \lambda, \beta, \rho).
-#'   }
-#'
-#' @return
-#' Scalar log posterior value
-#' \deqn{
-#' \log \pi(\rho \mid \cdot)
-#' }
-#' up to an additive constant.
-#'
+#' @param rho Copula correlation, strictly inside \code{bounds}.
+#' @param logc_obs Observation-specific log copula contributions.
+#' @param shape1,shape2 Beta prior shape parameters.
+#' @param bounds Lower and upper bounds for rho. Defaults to (0, 1).
+#' @return Log posterior, up to an additive constant.
 #' @keywords internal
-log_post_rho <- function(rho, logc_obs, shape1, shape2) {
-
-  ## Enforce support of the copula parameter
-  if (rho <= 0 || rho >= 1) return(-Inf)
-
-  ## Copula log-likelihood contribution
-  loglik <- sum(logc_obs)
-
-  ## Beta prior on rho
-  logprior <- dbeta(rho, shape1 = shape1, shape2 = shape2, log = TRUE)
-
-  ## Log posterior kernel
-  loglik + logprior
+log_post_rho <- function(rho, logc_obs, shape1, shape2, bounds = c(0, 1)) {
+  if (!is.finite(rho) || rho <= bounds[1] || rho >= bounds[2]) return(-Inf)
+  rho_unit <- (rho - bounds[1]) / diff(bounds)
+  sum(logc_obs) + dbeta(rho_unit, shape1, shape2, log = TRUE) -
+    log(diff(bounds))
 }

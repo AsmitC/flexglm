@@ -20,8 +20,8 @@ log_copula_contribution_by_obs(
 \arguments{
 \item{y}{Numeric vector of outcomes.}
 
-\item{group_index}{Vector indicating group membership for each
-observation in \code{y}.}
+\item{group_index}{Vector indicating group membership for each   observation
+in \code{y}.}
 
 \item{rho}{Copula dependence parameter.}
 
@@ -29,8 +29,8 @@ observation in \code{y}.}
 
 \item{crm.jumps}{Vector of CRM jump sizes \eqn{(J_{\ell})}.}
 
-\item{theta}{Numeric vector of covariate effects with length equal
-to \code{length(y)}.}
+\item{theta}{Numeric vector of covariate effects with length equal   to
+\code{length(y)}.}
 
 \item{c0}{Half-width of the uniform kernel.}
 

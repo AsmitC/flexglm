@@ -17,6 +17,8 @@ b_theta(theta, spt, f0)
 Numeric vector of \eqn{b(\theta)} values, one for each \code{theta}.
 }
 \description{
-Calculates \eqn{b(\theta) = \log \left( \int \exp(\theta z) dG_0(z) \right)} for a discrete base measure \eqn{G_0}
-with support points \code{spt} and weights \code{f0}, using log-sum-exp trick for numerical stability.
+Calculates \eqn{b(\theta) = \log \left( \int \exp(\theta z) dG_0(z) \right)}
+for a discrete base measure \eqn{G_0}
+with support points \code{spt} and weights \code{f0}, using log-sum-exp trick
+for numerical stability.
 }

@@ -9,12 +9,12 @@
 \arguments{
 \item{object}{A fitted \code{dirglm} object}
 
-\item{prob}{value between 0 and 1 indicating the desired probability
-level for the credible intervals. Defaults to 0.95.}
+\item{prob}{value between 0 and 1 indicating the desired probability level
+for the credible intervals. Defaults to 0.95.}
 
 \item{robust}{Logical indicating whether to show robust statistics for
-\code{Estimate} and \code{Est.Error}. Defaults to \code{FALSE}. See
-details for more information.}
+\code{Estimate} and \code{Est.Error}. Defaults to \code{FALSE}. See details
+for more information.}
 
 \item{...}{Additional arguments, currently unused.}
 }

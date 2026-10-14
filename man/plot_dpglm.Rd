@@ -30,14 +30,14 @@ plot_dpglm(
 \arguments{
 \item{object}{A fitted \code{dpglm} object.}
 
-\item{what}{Specifies which posterior to plot. One of \code{"beta"}
-or \code{"crm"}. Defaults to \code{"beta"}.}
+\item{what}{Specifies which posterior to plot. One of \code{"beta"} or
+\code{"crm"}. Defaults to \code{"beta"}.}
 
-\item{pars}{Specifies the names or integer indices of
-the \code{beta} coefficients to plot. See deutils::tails for more information.}
+\item{pars}{Specifies the names or integer indices of the \code{beta}
+coefficients to plot. See deutils::tails for more information.}
 
-\item{top_k}{The number of \code{beta} coefficients to plot if \code{pars}
-is \code{NULL} and the number of coefficients is large. Defaults to 6.}
+\item{top_k}{The number of \code{beta} coefficients to plot if \code{pars} is
+\code{NULL} and the number of coefficients is large. Defaults to 6.}
 
 \item{order}{Specifies the sorting mechanism for \code{beta} coefficients.
 One of \code{"magnitude"}, \code{"variance"}, or \code{"none"}.}
@@ -45,8 +45,8 @@ One of \code{"magnitude"}, \code{"variance"}, or \code{"none"}.}
 \item{robust}{Logical indicating whether to plot robust statistics for
 \code{Estimate} and \code{Est.Error}. Defaults to \code{FALSE}.}
 
-\item{prob}{Value between 0 and 1 indicating the desired probability
-level for the credible intervals. Defaults to 0.95.}
+\item{prob}{Value between 0 and 1 indicating the desired probability level
+for the credible intervals. Defaults to 0.95.}
 
 \item{dens_args}{A list of additional arguments passed to
 \code{stats::density}.}
@@ -56,7 +56,8 @@ beta panels. Defaults to \code{FALSE}.}
 
 \item{ncol}{Number of columns in the layout for beta panels.}
 
-\item{grid_length}{Number of grid points used when plotting the posterior CRM.}
+\item{grid_length}{Number of grid points used when plotting the posterior
+CRM.}
 
 \item{col}{Plot color.}
 
@@ -85,7 +86,9 @@ Plot DPGLM Posterior Distributions
 \details{
 If \code{pars = NULL} and the number of \code{beta} coefficients is greater
 than \code{top_k}, the top \code{top_k} coefficients ordered by \code{order}
-are plotted. The default for \code{top_k} is 6 and the default sorting mechanism
-is the coefficient magnitude. If the number of coefficients is less than \code{top_k},
+are plotted. The default for \code{top_k} is 6 and the default sorting
+mechanism
+is the coefficient magnitude. If the number of coefficients is less than
+\code{top_k},
 all of them are plotted.
 }

@@ -45,12 +45,7 @@ test_that("dpglm fits and returns expected object structure", {
   ctrl <- do.call(dpglm.control, test_control_dpglm())
 
   fit <- suppressWarnings(
-    dpglm(
-      y ~ x,
-      data = dat,
-      link = "logit",
-      dpglmControl = ctrl
-    )
+    dpglm(y ~ x, data = dat, link = "logit", dpglmControl = ctrl)
   )
 
   expect_s3_class(fit, "dpglm")
@@ -73,7 +68,8 @@ test_that("dpglm fits and returns expected object structure", {
 
 test_that("dpglm respects burnin, thin, and save in stored samples", {
   dat <- test_data_dpglm()
-  ctrl <- do.call(dpglm.control, test_control_dpglm(save = 4, burnin = 2, thin = 2))
+  ctrl <- do.call(dpglm.control, test_control_dpglm(save = 4, burnin = 2,
+                                                    thin = 2))
 
   fit <- suppressWarnings(
     dpglm(y ~ x, data = dat, link = "logit", dpglmControl = ctrl)
@@ -91,7 +87,8 @@ test_that("dpglm respects burnin, thin, and save in stored samples", {
 
 test_that("dpglm supports burnin equal to zero", {
   dat <- test_data_dpglm()
-  ctrl <- do.call(dpglm.control, test_control_dpglm(save = 3, burnin = 0, thin = 1))
+  ctrl <- do.call(dpglm.control, test_control_dpglm(save = 3, burnin = 0,
+                                                    thin = 1))
 
   fit <- suppressWarnings(
     dpglm(y ~ x, data = dat, link = "logit", dpglmControl = ctrl)
@@ -117,8 +114,10 @@ test_that("summary.dpglm returns expected components", {
   expect_equal(rownames(s$beta), c("Intercept", "x"))
   expect_equal(rownames(s$crm), c("min", "q25", "median", "q75", "max"))
 
-  expect_true(all(c("Estimate", "Est.Error", "l-95% CrI", "u-95% CrI") %in% colnames(s$beta)))
-  expect_true(all(c("Estimate", "Est.Error", "l-95% CrI", "u-95% CrI") %in% colnames(s$crm)))
+  expect_true(all(c("Estimate", "Est.Error", "l-95% CrI",
+                    "u-95% CrI") %in% colnames(s$beta)))
+  expect_true(all(c("Estimate", "Est.Error", "l-95% CrI",
+                    "u-95% CrI") %in% colnames(s$crm)))
 })
 
 test_that("plot_dpglm runs for beta and crm", {
@@ -195,10 +194,7 @@ test_that("dpglm rejects mb and Sb with invalid dimensions", {
 })
 
 test_that("dpglm rejects singular design matrices", {
-  dat <- data.frame(
-    y = c(0.42, 0.45, 0.48, 0.50, 0.52, 0.55),
-    x = rep(1, 6)
-  )
+  dat <- data.frame(y = c(0.42, 0.45, 0.48, 0.50, 0.52, 0.55), x = rep(1, 6))
 
   ctrl <- do.call(dpglm.control, test_control_dpglm())
 
@@ -214,10 +210,7 @@ test_that("dpglm rejects invalid custom link objects", {
   dat <- test_data_dpglm()
   ctrl <- do.call(dpglm.control, test_control_dpglm())
 
-  bad_link <- list(
-    linkfun = function(mu) mu,
-    linkinv = function(eta) eta
-  )
+  bad_link <- list(linkfun = function(mu) mu, linkinv = function(eta) eta)
 
   expect_error(
     suppressWarnings(
@@ -262,10 +255,7 @@ test_that("dpglm and dpglmFit agree", {
     beta = ctrl$betaStart,
     varbeta = ctrl$varbetaStart,
     theta = ctrl$thetaStart,
-    crm = list(
-      z.tld = ctrl$crmStart$z.tld,
-      J.tld = ctrl$crmStart$J.tld
-    )
+    crm = list(z.tld = ctrl$crmStart$z.tld, J.tld = ctrl$crmStart$J.tld)
   )
 
   fit_internal <- suppressWarnings(

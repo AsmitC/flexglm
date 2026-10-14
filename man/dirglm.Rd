@@ -17,28 +17,27 @@ dirglm(
 
 \item{data}{An optional data frame containing the variables in the model.}
 
-\item{link}{Link function. Defaults to log.
-Can be a character string to be passed to the
-\code{make.link} function in the \code{stats} package (e.g. "identity",
-"logit", or "log").
-Alternatively, \code{link} can be a list containing three functions named
-\code{linkfun}, \code{linkinv}, and \code{mu.eta}. The first is the link
-function. The second is the inverse link function. The third is the derivative
-of the inverse link function. All three functions must be vectorized.}
+\item{link}{Link function. Defaults to log. Can be a character string to be
+passed to the \code{make.link} function in the \code{stats} package (e.g.
+"identity", "logit", or "log"). Alternatively, \code{link} can be a list
+containing three functions named \code{linkfun}, \code{linkinv}, and
+\code{mu.eta}. The first is the link function. The second is the inverse link
+function. The third is the derivative of the inverse link function. All three
+functions must be vectorized.}
 
-\item{dirglmControl}{Optional control arguments.
-Passed as an object of class "dirglmControl", which is constructed by the
-\code{dirglm.control} function.
+\item{dirglmControl}{Optional control arguments. Passed as an object of class
+"dirglmControl", which is constructed by the \code{dirglm.control} function.
 See \code{dirglm.control} documentation for details.}
 
-\item{thetaControl}{Optional control arguments for the theta update procedure.
-Passed as an object of class "thetaControl", which is constructed by the
-\code{theta.control} function.
-See \code{theta.control} documentation for details.}
+\item{thetaControl}{Optional control arguments for the theta update
+procedure. Passed as an object of class "thetaControl", which is constructed
+by the \code{theta.control} function. See \code{theta.control} documentation
+for details.}
 }
 \value{
 List of class "dirglm" containing information including
-posterior samples, Metropolis-Hastings acceptance rates, and model specification See
+posterior samples, Metropolis-Hastings acceptance rates, and model
+specification See
 details for more information.
 }
 \description{
@@ -54,7 +53,8 @@ when \code{Sb} is non-diagonal.
 
 The "dirglm" class is a list of the following items.
 \itemize{
-\item \code{samples} A list containing the MCMC samples for \code{f0} and \code{beta}.
+\item \code{samples} A list containing the MCMC samples for \code{f0} and
+\code{beta}.
 \item \code{mb} Prior mean for \code{beta}.
 \item \code{Sb} Prior variance-covariance matrix for \code{beta}.
 \item \code{dir_pr_parm} Dirichlet prior parameter.
@@ -62,25 +62,31 @@ The "dirglm" class is a list of the following items.
 \item \code{data} Model data frame.
 \item \code{link} Link function. If a character string was passed to the
 \code{link} argument, then this will be an object of class "link-glm".
-Otherwise, it will be the list of three functions passed to the \code{link} argument.
-\item \code{spt} Support, \eqn{\{s_j, \ j = 1, 2, ..., l\}}, of response variable \code{y}.
+Otherwise, it will be the list of three functions passed to the \code{link}
+argument.
+\item \code{spt} Support, \eqn{\{s_j, \ j = 1, 2, ..., l\}}, of response
+variable \code{y}.
 \item \code{mu0} Mean of the reference distribution \code{f0}.
 \item \code{burnin} The number of burn-in MCMC iterations.
 \item \code{thin} Thinning parameter used for MCMC
 \item \code{save} The number of saved MCMC iterations.
-\item \code{beta_acceptance} Proportion of accepted proposals for beta during MCMC.
-\item \code{f0_acceptance} Proportion of accepted proposals for f0 during MCMC.
+\item \code{beta_acceptance} Proportion of accepted proposals for beta during
+MCMC.
+\item \code{f0_acceptance} Proportion of accepted proposals for f0 during
+MCMC.
 }
 }
 \examples{
 \dontrun{
 set.seed(832)
-x <- rep(0:2, each=3)
-lam <- exp(0.3+0.6*x)
+x <- rep(0:2, each = 3)
+lam <- exp(0.3 + 0.6 * x)
 y <- rpois(length(x), lam)
 dat <- data.frame(x, y)
-fit.test <- dirglm(y ~ x, data=dat,
-                   dirglmControl=dirglm.control(burnin=10,thin=1,save=10))
+fit.test <- dirglm(y ~ x,
+  data = dat,
+  dirglmControl = dirglm.control(burnin = 10, thin = 1, save = 10)
+)
 summary(fit.test)
 }
 

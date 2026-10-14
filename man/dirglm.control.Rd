@@ -30,23 +30,25 @@ dirglm.control(
 
 \item{rho}{MCMC update step size. A scalar in \eqn{(0, 1]}. Defaults to 0.1.}
 
-\item{mb}{Prior mean for beta. Defaults to a p-length vector whose entries are all 0.}
+\item{mb}{Prior mean for beta. Defaults to a p-length vector whose entries
+are all 0.}
 
-\item{Sb}{Prior variance-covariance matrix for beta.
-Defaults to the p-dimensional identity matrix. See details for more information.}
+\item{Sb}{Prior variance-covariance matrix for beta. Defaults to the
+p-dimensional identity matrix. See details for more information.}
 
 \item{dir_pr_parm}{Dirichlet prior parameter for f0. Defaults to the observed
 response frequency distribution. If specified, it should be a p-length vector
 with positive entries.}
 
-\item{gamma}{Shrinkage parameter for the (default) prior variance on \code{beta}.
-Defaults to 1. Will not be used if \code{Sb} is specified in \code{dirglm}.}
+\item{gamma}{Shrinkage parameter for the (default) prior variance on
+\code{beta}. Defaults to 1. Will not be used if \code{Sb} is specified in
+\code{dirglm}.}
 
 \item{mu0}{Mean of the reference distribution. The reference distribution is
 not unique unless its mean is restricted to a specific value. This value can
-be any number within the range of observed values, but values near the boundary
-may cause numerical instability. This is an optional argument with \code{mean(y)}
-being the default value.}
+be any number within the range of observed values, but values near the
+boundary may cause numerical instability. This is an optional argument with
+\code{mean(y)} being the default value.}
 
 \item{spt}{Theoretical support of the response variable.}
 
@@ -72,11 +74,13 @@ value is provided by the user.
 }
 \examples{
 \dontrun{
-ctrl <- dirglm.control(burnin = 100,
-                       thin = 2,
-                       save = 500,
-                       spt = 0:1,
-                       seed = 123)
+ctrl <- dirglm.control(
+  burnin = 100,
+  thin = 2,
+  save = 500,
+  spt = 0:1,
+  seed = 123
+)
 }
 
 }

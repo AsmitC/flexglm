@@ -8,3 +8,9 @@
 ^\.positai$
 ^\.claude$
 ^LICENSE\.md$
+^tmp$
+^\.lintr$
+^\.vscode$
+^\.Rprofile$
+^\.Renviron$
+^dev$

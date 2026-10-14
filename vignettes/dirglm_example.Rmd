@@ -91,7 +91,10 @@ One can modify this plot in a few common ways. In the below chunk, we inspect th
 4. `col = "blue"` changes the default coloring used in the plot.
 
 ```{r}
-plot_dirglm(fit, what = "beta", pars = "Intercept", prob = 0.9, robust = TRUE, col = "#E69F00")
+plot_dirglm(
+  fit, what = "beta", pars = "Intercept", prob = 0.9,
+  robust = TRUE, col = "#E69F00"
+)
 ```
 
 Similarly, one can visualize reference distribution $f_0$. Similar modifications can be made to the plot. 

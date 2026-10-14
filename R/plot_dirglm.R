@@ -1,25 +1,28 @@
 #' Plot DirGLM Posterior Distributions
 #'
 #' @param object A fitted \code{dirglm} object.
-#' @param what Specifies which posterior to plot. One of \code{"beta"}
-#' or \code{"f0"}. Defaults to \code{"beta"}.
-#' @param pars Specifies the names or integer indices of
-#' the \code{beta} coefficients to plot. See details for more information.
-#' @param top_k The number of \code{beta} coefficients to plot if \code{pars} is \code{NULL}
-#' and the number of coefficients is large. Defaults to 6.
+#' @param what Specifies which posterior to plot. One of \code{"beta"} or
+#' \code{"f0"}. Defaults to \code{"beta"}.
+#' @param pars Specifies the names or integer indices of the \code{beta}
+#' coefficients to plot. See details for more information.
+#' @param top_k The number of \code{beta} coefficients to plot if \code{pars} is
+#' \code{NULL} and the number of coefficients is large. Defaults to 6.
 #' @param order Specifies the sorting mechanism for \code{beta} coefficients.
-#' One of \code{"magnitude"}, \code{"variance"}, or \code{"none"}. Defaults to \code{"magnitude"}.
+#' One of \code{"magnitude"}, \code{"variance"}, or \code{"none"}. Defaults to
+#' \code{"magnitude"}.
 #' @param robust Logical indicating whether to plot robust statistics for
 #' \code{Estimate} and \code{Est.Error}. Defaults to \code{FALSE}.
-#' @param prob Value between 0 and 1 indicating the desired probability
-#' level for the credible intervals. Defaults to 0.95.
+#' @param prob Value between 0 and 1 indicating the desired probability level
+#' for the credible intervals. Defaults to 0.95.
 #' @param dens_args A list of additional arguments passed to the
-#' \code{stats::density} function for plotting the posterior density of \code{beta}.
+#' \code{stats::density} function for plotting the posterior density of
+#' \code{beta}.
 #' @param common_xlim Logical indicating whether to share the x-axis limits
 #' across all \code{beta} panels. Defaults to \code{FALSE}.
 #' @param ncol Number of columns in the layout for \code{beta} panels.
 #' @param col A string specifying the desired plot color.
-#' @param band_alpha Specifies the transparency of the CrI band. Defaults to 0.25.
+#' @param band_alpha Specifies the transparency of the CrI band. Defaults to
+#' 0.25.
 #' @param line_lwd Line width for the posterior density lines. Defaults to 2.
 #' @param point_pch Point style for the \code{f0} plots.
 #' @param point_cex Point size for the \code{f0} plots.
@@ -36,35 +39,37 @@
 #' @details
 #' If \code{pars = NULL} and the number of \code{beta} coefficients is greater
 #' than \code{top_k}, the top \code{top_k} coefficients ordered by \code{order}
-#' are plotted. The default for \code{top_k} is 6 and the default sorting mechanism
-#' is the coefficient magnitude. If the number of coefficients is less than \code{top_k},
+#' are plotted. The default for \code{top_k} is 6 and the default sorting
+#' mechanism
+#' is the coefficient magnitude. If the number of coefficients is less than
+#' \code{top_k},
 #' all of them are plotted.
 #'
 #' @export
 plot_dirglm <- function(
-    object,
-    what = c("beta", "f0"),
-    pars = NULL,
-    top_k = 6,
-    order = c("magnitude", "variance", "none"),
-    robust = FALSE,
-    prob = 0.95,
-    # beta density options
-    dens_args = list(adjust = 1, n = 512, na.rm = TRUE),
-    common_xlim = FALSE,
-    ncol = NULL,
-    # aesthetics
-    col = graphics::par("col"),
-    band_alpha = 0.25,
-    line_lwd = 2,
-    point_pch = 16,
-    point_cex = 0.8,
-    xlab = NULL, ylab = NULL, main = NULL,
-    xlim = NULL, ylim = NULL,
-    ...
+  object,
+  what = c("beta", "f0"),
+  pars = NULL,
+  top_k = 6,
+  order = c("magnitude", "variance", "none"),
+  robust = FALSE,
+  prob = 0.95,
+  # beta density options
+  dens_args = list(adjust = 1, n = 512, na.rm = TRUE),
+  common_xlim = FALSE,
+  ncol = NULL,
+  # aesthetics
+  col = graphics::par("col"),
+  band_alpha = 0.25,
+  line_lwd = 2,
+  point_pch = 16,
+  point_cex = 0.8,
+  xlab = NULL, ylab = NULL, main = NULL,
+  xlim = NULL, ylim = NULL,
+  ...
 ) {
-  fit   <- object
-  what  <- match.arg(what)
+  fit <- object
+  what <- match.arg(what)
   order <- match.arg(order)
 
   band_col <- grDevices::adjustcolor(col, alpha.f = band_alpha) # CrI shade
@@ -78,25 +83,33 @@ plot_dirglm <- function(
   if (what == "beta") {
     beta_samples <- as.matrix(fit$samples$beta)
     if (is.null(colnames(beta_samples))) {
-      colnames(beta_samples) <- paste0("beta_", seq_len(ncol(beta_samples)) - 1L)
+      colnames(beta_samples) <- paste0("beta_", seq_len(ncol(beta_samples)) -
+                                         1L)
       colnames(beta_samples)[1] <- "Intercept"
     }
 
     btab <- as.data.frame(s$beta)
 
-    center_all <- setNames(btab[,"Estimate"], rownames(btab))
-    lower_all  <- setNames(btab[, low_key],   rownames(btab))
-    upper_all  <- setNames(btab[, upp_key],   rownames(btab))
+    center_all <- setNames(btab[, "Estimate"], rownames(btab))
+    lower_all <- setNames(btab[, low_key], rownames(btab))
+    upper_all <- setNames(btab[, upp_key], rownames(btab))
 
     # Choose indices to plot
     all_names <- rownames(btab)
     if (is.null(pars)) {
-      if (order == "variance") ord  <- order(btab[, "Est.Error"], decreasing = TRUE)
-      else if (order == "none") ord <- seq_along(all_names)
-      else ord <- order(abs(center_all), decreasing = TRUE)
+      if (order == "variance") {
+        ord <- order(btab[, "Est.Error"], decreasing = TRUE)
+      } else if (order == "none") {
+        ord <- seq_along(all_names)
+      } else {
+        ord <- order(abs(center_all), decreasing = TRUE)
+      }
       keep_names <- all_names[ord][seq_len(min(top_k, length(ord)))]
-    } else if (is.character(pars)) keep_names <- pars
-    else keep_names <- all_names[pars]
+    } else if (is.character(pars)) {
+      keep_names <- pars
+    } else {
+      keep_names <- all_names[pars]
+    }
 
     idx <- match(keep_names, colnames(beta_samples))
     k <- length(idx)
@@ -111,8 +124,10 @@ plot_dirglm <- function(
     if (is.null(xlab)) xlab <- "Value"
     if (is.null(ylab)) ylab <- "Density"
     if (is.null(main)) {
-      main <- sprintf("Posterior %s (%.0f%% CrI shaded)",
-                      if (robust) "Medians" else "Means", 100 * prob)
+      main <- sprintf(
+        "Posterior %s (%.0f%% CrI shaded)",
+        if (robust) "Medians" else "Means", 100 * prob
+      )
     }
 
     op <- graphics::par(no.readonly = TRUE)
@@ -132,59 +147,72 @@ plot_dirglm <- function(
       lj <- lower_all[nm]
       uj <- upper_all[nm]
 
-      # CrI[j]
-      L <- min(lj, uj); U <- max(lj, uj)
+      L <- min(lj, uj)
+      U <- max(lj, uj)
       xlim_j <- if (!is.null(xlim)) xlim else range(dj$x, finite = TRUE)
       ylim_j <- if (!is.null(ylim)) ylim else range(dj$y, finite = TRUE)
 
-      plot(dj, type = "n",
-           xlab = xlab, ylab = ylab,
-           main = if (k == 1) main else "",
-           xlim = xlim_j, ylim = ylim_j, ...)
+      plot(dj,
+        type = "n",
+        xlab = xlab, ylab = ylab,
+        main = if (k == 1) main else "",
+        xlim = xlim_j, ylim = ylim_j, ...
+      )
 
       inside <- dj$x >= L & dj$x <= U
       if (any(inside)) {
         px <- c(dj$x[inside], rev(dj$x[inside]))
         py <- c(dj$y[inside], rep(0, sum(inside)))
         graphics::polygon(px, py, border = NA, col = band_col)
-      } else warning("No density values inside the CrI range for '", nm, "'")
+      } else {
+        warning("No density values inside the CrI range for '", nm, "'")
+      }
 
       graphics::lines(dj$x, dj$y, lwd = line_lwd, col = col)
-      graphics::abline(v = cj, lty = 2, col = col)       # center reference
+      graphics::abline(v = cj, lty = 2, col = col) # center reference
       if (k > 1) graphics::mtext(nm, side = 3, line = 0.2, cex = 0.9)
     }
 
-    if (k > 1 && nzchar(main)) graphics::mtext(main, outer = TRUE, line = 0.6, cex = 1.1)
-    return(invisible(list(what="beta", selected=keep_names)))
+    if (k > 1 && nzchar(main)) graphics::mtext(main, outer = TRUE,
+                                               line = 0.6, cex = 1.1)
+    return(invisible(list(what = "beta", selected = keep_names)))
   }
 
   # f0 plotting
   if (what == "f0") {
     x <- fit$spt
     ftab <- as.data.frame(s$f0)
-    center <- ftab[,"Estimate"]
-    lower  <- ftab[, low_key]
-    upper  <- ftab[, upp_key]
+    center <- ftab[, "Estimate"]
+    lower <- ftab[, low_key]
+    upper <- ftab[, upp_key]
 
     if (is.null(xlab)) xlab <- "Support"
     if (is.null(ylab)) ylab <- "Probability"
-    if (is.null(main)) main <- sprintf("Posterior %s of f0 (%.0f%% CrI)",
-                                       if (robust) "Median" else "Mean", 100 * prob)
+    if (is.null(main)) {
+      main <- sprintf(
+        "Posterior %s of f0 (%.0f%% CrI)",
+        if (robust) "Median" else "Mean", 100 * prob
+      )
+    }
 
     cap <- 1.2
     if (is.null(ylim)) {
-      ymax <- min(1, cap * max(upper, na.rm=TRUE))
+      ymax <- min(1, cap * max(upper, na.rm = TRUE))
       ylim <- c(0, grDevices::extendrange(c(0, ymax), f = 0.04)[2])
     }
     if (is.null(xlim)) xlim <- range(x, finite = TRUE)
 
-    plot(NA, xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab, main = main, ...)
-    graphics::segments(x0 = x, y0 = lower, x1 = x, y1 = upper, col = col, lwd = line_lwd)
+    plot(NA, xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab, main = main,
+         ...)
+    graphics::segments(x0 = x, y0 = lower, x1 = x, y1 = upper, col = col,
+                       lwd = line_lwd)
     cap_w <- 0.015 * diff(range(xlim))
-    graphics::segments(x - cap_w, upper, x + cap_w, upper, col = col, lwd = line_lwd)
-    graphics::segments(x - cap_w, lower, x + cap_w, lower, col = col, lwd = line_lwd)
+    graphics::segments(x - cap_w, upper, x + cap_w, upper, col = col,
+                       lwd = line_lwd)
+    graphics::segments(x - cap_w, lower, x + cap_w, lower, col = col,
+                       lwd = line_lwd)
     graphics::points(x, center, pch = point_pch, cex = point_cex, col = col)
 
-    return(invisible(list(what="f0")))
+    return(invisible(list(what = "f0")))
   }
 }

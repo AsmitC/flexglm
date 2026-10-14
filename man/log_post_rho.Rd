@@ -2,39 +2,23 @@
 % Please edit documentation in R/mcmc_helpers.R
 \name{log_post_rho}
 \alias{log_post_rho}
-\title{Log posterior kernel for the copula dependence parameter rho}
+\title{Log posterior kernel for rho}
 \usage{
-log_post_rho(rho, logc_obs, shape1, shape2)
+log_post_rho(rho, logc_obs, shape1, shape2, bounds = c(0, 1))
 }
 \arguments{
-\item{rho}{Scalar copula dependence parameter, must lie in \eqn{(0,1)}.}
+\item{rho}{Copula correlation, strictly inside \code{bounds}.}
 
-\item{logc_obs}{Numeric vector of log copula contributions whose sum
-equals
-\deqn{
-  \log \prod_i c(y_i, \lambda, \beta, \rho).
-  }}
+\item{logc_obs}{Observation-specific log copula contributions.}
+
+\item{shape1, shape2}{Beta prior shape parameters.}
+
+\item{bounds}{Lower and upper bounds for rho. Defaults to (0, 1).}
 }
 \value{
-Scalar log posterior value
-\deqn{
-\log \pi(\rho \mid \cdot)
-}
-up to an additive constant.
+Log posterior, up to an additive constant.
 }
 \description{
-This function evaluates the log posterior of rho under the
-simplified joint distribution
-}
-\details{
-\deqn{
-\pi(\rho \mid y, \lambda, \beta)
-\propto
-\prod_i c(y_i, \lambda, \beta, \rho)\, p(\rho)
-}
-
-where all marginal likelihood terms are handled elsewhere and the
-input \code{logc_obs} already contains the log copula density
-contributions evaluated at the current value of \eqn{\rho}.
+Adds the copula contribution and a Beta prior on rho rescaled to (0, 1).
 }
 \keyword{internal}
