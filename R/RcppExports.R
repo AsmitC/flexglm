@@ -2,18 +2,18 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 crm_sampler_cpp <- function(M, u, zstar, nstar, theta, alpha, min_y, max_y, eps, h, n_draws = 1L, n_grid = 3001L, r_grid = 3001L) {
-    .Call(`_dirglm_crm_sampler_cpp`, M, u, zstar, nstar, theta, alpha, min_y, max_y, eps, h, n_draws, n_grid, r_grid)
+    .Call(`_flexglm_crm_sampler_cpp`, M, u, zstar, nstar, theta, alpha, min_y, max_y, eps, h, n_draws, n_grid, r_grid)
 }
 
 getTheta_cpp <- function(spt, f0, mu, sampprobs = NULL, ySptIndex = NULL, thetaStart = NULL, eps = 1e-10, maxiter = 100L, maxhalf = 20L, maxtheta = 500.0, logit = TRUE, logsumexp = FALSE) {
-    .Call(`_dirglm_getTheta_cpp`, spt, f0, mu, sampprobs, ySptIndex, thetaStart, eps, maxiter, maxhalf, maxtheta, logit, logsumexp)
+    .Call(`_flexglm_getTheta_cpp`, spt, f0, mu, sampprobs, ySptIndex, thetaStart, eps, maxiter, maxhalf, maxtheta, logit, logsumexp)
 }
 
 log_post_u_cpp <- function(u, zstar, nstar, theta, alpha, min_y, max_y, eps, h) {
-    .Call(`_dirglm_log_post_u_cpp`, u, zstar, nstar, theta, alpha, min_y, max_y, eps, h)
+    .Call(`_flexglm_log_post_u_cpp`, u, zstar, nstar, theta, alpha, min_y, max_y, eps, h)
 }
 
 sampler_u_cpp <- function(u, zstar, nstar, theta, alpha, delta, min_y, max_y, eps, h) {
-    .Call(`_dirglm_sampler_u_cpp`, u, zstar, nstar, theta, alpha, delta, min_y, max_y, eps, h)
+    .Call(`_flexglm_sampler_u_cpp`, u, zstar, nstar, theta, alpha, delta, min_y, max_y, eps, h)
 }
 

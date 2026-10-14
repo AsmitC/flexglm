@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 # Overview
 
-The `dirglm` package provides various Bayesian semi-parametric extensions to the generalized linear model. These are
+The `flexglm` package provides various Bayesian semi-parametric extensions to the generalized linear model. These are
 available for use through the functions `dirglm`, `dpglm`, and `cdpglm`.
 
 In this document, we will explore how to use the `dirglm` function and inspect its results. In particular, we will
@@ -28,7 +28,7 @@ In this document, we will explore how to use the `dirglm` function and inspect i
 3. Summarize and visualize the results
 
 ```{r setup}
-library(dirglm)
+library(flexglm)
 ```
 
 # Simulate Data

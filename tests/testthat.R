@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(dirglm)
+library(flexglm)
 
-test_check("dirglm")
+test_check("flexglm")

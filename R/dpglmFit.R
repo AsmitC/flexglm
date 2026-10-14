@@ -336,8 +336,8 @@ dpglmFit <- function(formula, data, X, y,
   for (itr in seq_len(iter)) {
     if (burning && itr > burnin) burning <- FALSE
 
-    save_now <- (itr > burnin && (itr - burnin) %% thin == 0L)
-    if (save_now) save_index <- as.integer((itr - burnin) / thin)
+    save_cur <- (itr > burnin && (itr - burnin) %% thin == 0L)
+    if (save_cur) save_idx <- as.integer((itr - burnin) / thin)
 
 
     # beta update ------------------------------------
@@ -465,9 +465,9 @@ dpglmFit <- function(formula, data, X, y,
 
     # CRM update --------------------------------------
     t0 <- timer_now()
-    if (save_now) {
-      crm_u_samples[save_index, ] <- u
-      crm_theta_samples[save_index, ] <- theta
+    if (save_cur) {
+      crm_u_samples[save_idx, ] <- u
+      crm_theta_samples[save_idx, ] <- theta
     }
     crm_star <- crm_sampler(
       M = M,

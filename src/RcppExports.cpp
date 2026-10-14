@@ -12,7 +12,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 // crm_sampler_cpp
 List crm_sampler_cpp(const int M, const NumericVector& u, const NumericVector& zstar, const NumericVector& nstar, const NumericVector& theta, const double alpha, const double min_y, const double max_y, const double eps, NumericVector h, const int n_draws, const int n_grid, const int r_grid);
-RcppExport SEXP _dirglm_crm_sampler_cpp(SEXP MSEXP, SEXP uSEXP, SEXP zstarSEXP, SEXP nstarSEXP, SEXP thetaSEXP, SEXP alphaSEXP, SEXP min_ySEXP, SEXP max_ySEXP, SEXP epsSEXP, SEXP hSEXP, SEXP n_drawsSEXP, SEXP n_gridSEXP, SEXP r_gridSEXP) {
+RcppExport SEXP _flexglm_crm_sampler_cpp(SEXP MSEXP, SEXP uSEXP, SEXP zstarSEXP, SEXP nstarSEXP, SEXP thetaSEXP, SEXP alphaSEXP, SEXP min_ySEXP, SEXP max_ySEXP, SEXP epsSEXP, SEXP hSEXP, SEXP n_drawsSEXP, SEXP n_gridSEXP, SEXP r_gridSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -35,7 +35,7 @@ END_RCPP
 }
 // getTheta_cpp
 List getTheta_cpp(const NumericVector& spt, const NumericVector& f0, const NumericVector& mu, Nullable<NumericMatrix> sampprobs, Nullable<IntegerVector> ySptIndex, Nullable<NumericVector> thetaStart, const double eps, const int maxiter, const int maxhalf, const double maxtheta, const bool logit, const bool logsumexp);
-RcppExport SEXP _dirglm_getTheta_cpp(SEXP sptSEXP, SEXP f0SEXP, SEXP muSEXP, SEXP sampprobsSEXP, SEXP ySptIndexSEXP, SEXP thetaStartSEXP, SEXP epsSEXP, SEXP maxiterSEXP, SEXP maxhalfSEXP, SEXP maxthetaSEXP, SEXP logitSEXP, SEXP logsumexpSEXP) {
+RcppExport SEXP _flexglm_getTheta_cpp(SEXP sptSEXP, SEXP f0SEXP, SEXP muSEXP, SEXP sampprobsSEXP, SEXP ySptIndexSEXP, SEXP thetaStartSEXP, SEXP epsSEXP, SEXP maxiterSEXP, SEXP maxhalfSEXP, SEXP maxthetaSEXP, SEXP logitSEXP, SEXP logsumexpSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -57,7 +57,7 @@ END_RCPP
 }
 // log_post_u_cpp
 double log_post_u_cpp(const NumericVector& u, const NumericVector& zstar, const NumericVector& nstar, const NumericVector& theta, const double alpha, const double min_y, const double max_y, const double eps, const NumericVector& h);
-RcppExport SEXP _dirglm_log_post_u_cpp(SEXP uSEXP, SEXP zstarSEXP, SEXP nstarSEXP, SEXP thetaSEXP, SEXP alphaSEXP, SEXP min_ySEXP, SEXP max_ySEXP, SEXP epsSEXP, SEXP hSEXP) {
+RcppExport SEXP _flexglm_log_post_u_cpp(SEXP uSEXP, SEXP zstarSEXP, SEXP nstarSEXP, SEXP thetaSEXP, SEXP alphaSEXP, SEXP min_ySEXP, SEXP max_ySEXP, SEXP epsSEXP, SEXP hSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -76,7 +76,7 @@ END_RCPP
 }
 // sampler_u_cpp
 NumericVector sampler_u_cpp(NumericVector u, const NumericVector& zstar, const NumericVector& nstar, const NumericVector& theta, const double alpha, const double delta, const double min_y, const double max_y, const double eps, const NumericVector& h);
-RcppExport SEXP _dirglm_sampler_u_cpp(SEXP uSEXP, SEXP zstarSEXP, SEXP nstarSEXP, SEXP thetaSEXP, SEXP alphaSEXP, SEXP deltaSEXP, SEXP min_ySEXP, SEXP max_ySEXP, SEXP epsSEXP, SEXP hSEXP) {
+RcppExport SEXP _flexglm_sampler_u_cpp(SEXP uSEXP, SEXP zstarSEXP, SEXP nstarSEXP, SEXP thetaSEXP, SEXP alphaSEXP, SEXP deltaSEXP, SEXP min_ySEXP, SEXP max_ySEXP, SEXP epsSEXP, SEXP hSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -96,14 +96,14 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_dirglm_crm_sampler_cpp", (DL_FUNC) &_dirglm_crm_sampler_cpp, 13},
-    {"_dirglm_getTheta_cpp", (DL_FUNC) &_dirglm_getTheta_cpp, 12},
-    {"_dirglm_log_post_u_cpp", (DL_FUNC) &_dirglm_log_post_u_cpp, 9},
-    {"_dirglm_sampler_u_cpp", (DL_FUNC) &_dirglm_sampler_u_cpp, 10},
+    {"_flexglm_crm_sampler_cpp", (DL_FUNC) &_flexglm_crm_sampler_cpp, 13},
+    {"_flexglm_getTheta_cpp", (DL_FUNC) &_flexglm_getTheta_cpp, 12},
+    {"_flexglm_log_post_u_cpp", (DL_FUNC) &_flexglm_log_post_u_cpp, 9},
+    {"_flexglm_sampler_u_cpp", (DL_FUNC) &_flexglm_sampler_u_cpp, 10},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_dirglm(DllInfo *dll) {
+RcppExport void R_init_flexglm(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }
